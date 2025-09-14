@@ -2,47 +2,76 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 
 import "./index.css";
+import { auth } from "./firebase";
+
 import Home from "./Home";
-import Saved from "./saved";
-import Login from "./login";
-import reportWebVitals from "./reportWebVitals";
+import Recipes from "./Recipes";
+import Favorites from "./Favorites";
+import About from "./About";
+import Signin from "./Signin";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+          <h2>App error</h2>
+          <pre style={{ whiteSpace: "pre-wrap" }}>
+            {String(this.state.error || "Unknown error")}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function Root() {
-  const [savedRecipes, setSavedRecipes] = React.useState([]);
+  // Firebase user (undefined while loading, null if signed out)
   const [user, setUser] = React.useState(undefined);
 
+  // Favorites saved per user
+  const [savedRecipes, setSavedRecipes] = React.useState([]);
 
+  // Watch Firebase auth state
   React.useEffect(() => {
-    const auth = getAuth();
     const unsub = onAuthStateChanged(auth, (u) => setUser(u ?? null));
     return unsub;
   }, []);
 
-
+  // Load favorites when user changes
   React.useEffect(() => {
     if (!user) {
       setSavedRecipes([]);
       return;
     }
     const key = `savedRecipes:${user.uid}`;
-    const raw = localStorage.getItem(key);
     try {
+      const raw = localStorage.getItem(key);
       setSavedRecipes(raw ? JSON.parse(raw) : []);
     } catch {
       setSavedRecipes([]);
     }
   }, [user]);
 
-
+  // Persist favorites per-user
   React.useEffect(() => {
     if (!user) return;
-    const key = `savedRecipes:${user.uid}`;
-    localStorage.setItem(key, JSON.stringify(savedRecipes));
+    localStorage.setItem(
+      `savedRecipes:${user.uid}`,
+      JSON.stringify(savedRecipes)
+    );
   }, [user, savedRecipes]);
-
 
   if (user === undefined) {
     return <div style={{ padding: 24, textAlign: "center" }}>Loading…</div>;
@@ -54,27 +83,51 @@ function Root() {
         <Route
           path="/"
           element={
-            user ? (
-              <Home savedRecipes={savedRecipes} setSavedRecipes={setSavedRecipes} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            <Home
+              user={user}
+              savedRecipes={savedRecipes}
+              setSavedRecipes={setSavedRecipes}
+            />
           }
         />
+
+        {/* Pass user so avatar shows in header */}
+        <Route path="/about" element={<About user={user} />} />
+
         <Route
-          path="/saved"
+          path="/recipes"
+          element={
+            <Recipes
+              user={user}
+              savedRecipes={savedRecipes}
+              setSavedRecipes={setSavedRecipes}
+            />
+          }
+        />
+
+        <Route
+          path="/favorites"
           element={
             user ? (
-              <Saved savedRecipes={savedRecipes} setSavedRecipes={setSavedRecipes} />
+              <Favorites
+                user={user}
+                savedRecipes={savedRecipes}
+                setSavedRecipes={setSavedRecipes}
+              />
             ) : (
-              <Navigate to="/login" replace />
+              // If a user hits /favorites while logged out, send to sign in.
+              <Navigate to="/signin" replace />
             )
           }
         />
+
         <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <Login />}
+          path="/signin"
+          element={user ? <Navigate to="/" replace /> : <Signin />}
         />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
@@ -83,8 +136,8 @@ function Root() {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Root />
+    <ErrorBoundary>
+      <Root />
+    </ErrorBoundary>
   </React.StrictMode>
 );
-
-reportWebVitals();

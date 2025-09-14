@@ -1,672 +1,343 @@
-
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { auth, signOut } from "./firebase";
-import "./Home.css";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import logoImg from "./Assets/logo.png";
+import { signOut } from "firebase/auth";
+import "./Home.css";
+import Logo1 from "./Assets/logo.png";
+import Logo2 from "./Assets/api logo.png";
 
-const API = "https://www.themealdb.com/api/json/v1/1";
-const fetchJson = (url) => fetch(url).then((r) => r.json());
-
-
-function RecipeModal({ meal, onClose }) {
-  const ingredientImage = (name) =>
-    `https://www.themealdb.com/images/ingredients/${encodeURIComponent(name)}-Small.png`;
-
-  const parseIngredients = (m) => {
-    const out = [];
-    for (let i = 1; i <= 20; i++) {
-      const ing = m[`strIngredient${i}`];
-      const meas = m[`strMeasure${i}`];
-      if (ing && ing.trim()) {
-        const name = ing.trim();
-        out.push({ name, meas: (meas || "").trim(), img: ingredientImage(name) });
-      }
-    }
-    return out;
-  };
-
-  const parseSteps = (text = "") =>
-    text
-      .split(/\r?\n|(?<=\.)\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  const ings = parseIngredients(meal);
-  const steps = parseSteps(meal.strInstructions);
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-
-    return () => {
-
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
-  return (
-    <div className="modal" onClick={onClose}>
-      <div
-        className="modal-body"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${meal.strMeal} details`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Floating close button */}
-        <button
-          className="modal-close modal-close--floating"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <i className="bi bi-x"></i>
-        </button>
-
-
-        {/* Content starts immediately with Ingredients */}
-        <div className="modal-content">
-          <h4 className="section-title">Ingredients</h4>
-          <div className="ing-grid">
-            {ings.map((x, i) => (
-              <div key={i} className="ing-card">
-                <img className="ing-thumb" src={x.img} alt={x.name} />
-                <div>
-                  <div className="ing-label">{x.name}</div>
-                  <div className="ing-meas">{x.meas || "\u00A0"}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <h4 className="section-title">Instructions</h4>
-          <ul className="instructions">
-            {steps.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ul>
-
-          {meal.strYoutube && (
-            <a className="modal-yt" href={meal.strYoutube} target="_blank" rel="noreferrer">
-              Youtube
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Home({ savedRecipes = [], setSavedRecipes = () => { } }) {
-  const location = useLocation();
-
-  // UI state
-  const [selected, setSelected] = useState(null);
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const [activeTab, setActiveTab] = useState(null);
-
-  // dropdowns
-  const [showCats, setShowCats] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [activeCat, setActiveCat] = useState("All");
-  const catRef = useRef(null);
-
-  // profile dropdown
-  const [showProfile, setShowProfile] = useState(false);
-  const profileRef = useRef(null);
+export default function Home({ user, savedRecipes, setSavedRecipes }) {
+  /* ================================
+     UI STATE / NAV HELPERS
+     ================================ */
+  const [open, setOpen] = useState(false);              
   const navigate = useNavigate();
+  const scrollLockY = useRef(0);                         
 
-  const [showCuisine, setShowCuisine] = useState(false);
-  const [cuisines, setCuisines] = useState([]);
-  const [activeCuisine, setActiveCuisine] = useState("All");
-  const cuisineRef = useRef(null);
-
-  // data + pagination
-  const [allMealIds, setAllMealIds] = useState([]);
-  const [allIdsCache, setAllIdsCache] = useState([]); // cache full catalog (all ~304)
-  const [recipes, setRecipes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 16;
-  const totalPages = Math.ceil(allMealIds.length / pageSize);
-
-
-  const MICRO_DELAY = 150;
-
-  // ======== FULL CATALOG HELPERS========
-  const LETTERS = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
-
-  async function fetchAllMealIds() {
-    const ids = new Set();
-    for (const ch of LETTERS) {
-      const res = await fetchJson(`${API}/search.php?f=${ch}`);
-      (res.meals || []).forEach((m) => ids.add(m.idMeal));
-    }
-    return Array.from(ids);
+  /* Sign out + redirect to /signin */
+  async function handleLogout() {
+    await signOut(auth);
+    navigate("/signin", { replace: true });
   }
 
-  const fetchJson = async (url) => {
-    try {
-      const r = await fetch(url, { cache: "no-store" });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.json();
-    } catch (e) {
-      console.warn("fetch failed:", url, e.message);
-      return { meals: [] };
+  /* ================================
+     DATA CONFIG
+     ================================ */
+  const API = "https://www.themealdb.com/api/json/v1/1";
+  const CATEGORY = "Chicken";   
+  const LIMIT = 8;              
+
+  /* ================================
+     DATA STATE
+     ================================ */
+  const [meals, setMeals] = useState([]);                
+  const [status, setStatus] = useState("idle");          // "idle" | "loading" | "success" | "error"
+  const [showLoginWarn, setShowLoginWarn] = useState(false); // login-required modal visible?
+
+  /* Small utilities */
+  const j = (u) => fetch(u).then((r) => r.json());       
+  const dotJoin = (...xs) => xs.filter(Boolean).join(" • ");
+
+  /* Build short ingredient list (measure + ingredient) */
+  function ingredientSummary(meal, take = 8) {
+    const items = [];
+    for (let i = 1; i <= 20; i++) {
+      const ing = meal[`strIngredient${i}`];
+      const meas = meal[`strMeasure${i}`];
+      if (ing && ing.trim()) items.push(`${(meas || "").trim()} ${ing.trim()}`.trim());
+    }
+    return items.slice(0, take).join(", ");
+  }
+
+  /* Fetch N meals from a category, then hydrate with full details */
+  async function getMealsWithDetails(category, limit) {
+    const list = await j(`${API}/filter.php?c=${encodeURIComponent(category)}`);
+    const base = (list.meals || []).slice(0, limit);
+    const detail = await Promise.all(base.map((m) => j(`${API}/lookup.php?i=${m.idMeal}`)));
+    return detail.map((d) => d?.meals?.[0]).filter(Boolean);
+  }
+
+  /* ================================
+     BODY SCROLL-LOCK WHEN MODAL IS OPEN
+     ================================ */
+  useEffect(() => {
+    if (showLoginWarn) {
+      // freeze body: fix scroll position
+      scrollLockY.current = window.scrollY || 0;
+      document.body.style.top = `-${scrollLockY.current}px`;
+      document.body.classList.add("rp-noscroll");
+    } else {
+      // unfreeze body: restore scroll
+      document.body.classList.remove("rp-noscroll");
+      document.body.style.top = "";
+      window.scrollTo(0, scrollLockY.current);
+    }
+    // cleanup if component unmounts
+    return () => {
+      document.body.classList.remove("rp-noscroll");
+      document.body.style.top = "";
+    };
+  }, [showLoginWarn]);
+
+  /* ================================
+     INITIAL LOAD: get featured meals
+     ================================ */
+  useEffect(() => {
+    (async () => {
+      setStatus("loading");
+      try {
+        const data = await getMealsWithDetails(CATEGORY, LIMIT);
+        setMeals(data);
+        setStatus("success");
+      } catch {
+        setMeals([]);
+        setStatus("error");
+      }
+    })();
+  }, []);
+
+  /* ================================
+     AUTH HELPERS
+     ================================ */
+  const isAuthed = Boolean(user && user.uid);
+  const avatar = user?.photoURL || null;
+  const displayName = user?.displayName || "Profile";
+
+  /* Toggle favorites (requires auth) */
+  const toggleFavorite = (meal) => {
+    if (!isAuthed) { setShowLoginWarn(true); return; }    
+    setSavedRecipes((prev) => {
+      const exists = prev.some((x) => x.idMeal === meal.idMeal);
+      return exists ? prev.filter((x) => x.idMeal !== meal.idMeal) : [meal, ...prev];
+    });
+  };
+  const isFav = (id) => savedRecipes?.some((x) => x.idMeal === id);
+
+  /* Block /favorites route if not signed in */
+  const handleFavoritesNav = (e) => {
+    if (!isAuthed) {
+      e.preventDefault();
+      setShowLoginWarn(true);
     }
   };
 
-
-  useEffect(() => {
-    const onDocClick = (e) => {
-      if (!(catRef.current && catRef.current.contains(e.target))) setShowCats(false);
-      if (!(cuisineRef.current && cuisineRef.current.contains(e.target))) setShowCuisine(false);
-      if (!(profileRef.current && profileRef.current.contains(e.target))) setShowProfile(false); // ⬅️
-    };
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
-
-  // ======== PAGE LOADING ========
-  async function fetchDetailsByIds(ids) {
-    if (!ids.length) return [];
-    const results = await Promise.all(ids.map((id) => fetchJson(`${API}/lookup.php?i=${id}`)));
-    return results
-      .map((r) => (r.meals && r.meals[0] ? r.meals[0] : null))
-      .filter(Boolean);
-  }
-
-  async function loadPage(page, ids = allMealIds) {
-    const start = (page - 1) * pageSize;
-    const end = page * pageSize;
-    const pageIds = ids.slice(start, end);
-    const full = await fetchDetailsByIds(pageIds);
-    setRecipes(full);
-  }
-
-  // ======== INITIAL LOAD (ALL RECIPES) ========
-  useEffect(() => {
-
-    fetchJson(`${API}/list.php?c=list`).then((d) =>
-      setCategories((d.meals || []).map((m) => m.strCategory))
-    );
-    fetchJson(`${API}/list.php?a=list`).then((d) => {
-      const arr = (d.meals || []).map((m) => m.strArea).filter(Boolean);
-      setCuisines(Array.from(new Set(arr)));
-    });
-
-    (async () => {
-      setLoading(true);
-      const ids = await fetchAllMealIds();
-      setAllIdsCache(ids);
-      setAllMealIds(ids);
-      setCurrentPage(1);
-      await loadPage(1, ids);
-      setLoading(false);
-    })();
-  }, []);
-
-  // ======== CLICK-OUTSIDE TO CLOSE MENUS ========
-  useEffect(() => {
-    const onDocClick = (e) => {
-      if (!(catRef.current && catRef.current.contains(e.target))) setShowCats(false);
-      if (!(cuisineRef.current && cuisineRef.current.contains(e.target))) setShowCuisine(false);
-    };
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
-
-  // ======== RETURNING FROM SAVED -> RESET TO ALL ========
-  const triggeredFromSaved = useRef(false);
-  useEffect(() => {
-    if (!triggeredFromSaved.current && location.state?.fromSaved) {
-      triggeredFromSaved.current = true;
-      handleGoHome();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [location.state]);
-
-  // ======== FILTERING ========
-  async function getIdsForFilters(cat, area) {
-    const catAll = cat === "All";
-    const areaAll = area === "All";
-
-    if (catAll && areaAll) {
-
-      if (allIdsCache.length) return allIdsCache;
-      const ids = await fetchAllMealIds();
-      setAllIdsCache(ids);
-      return ids;
-    }
-
-    const [catIds, areaIds] = await Promise.all([
-      catAll
-        ? null
-        : fetchJson(`${API}/filter.php?c=${encodeURIComponent(cat)}`).then((d) =>
-          (d.meals || []).map((m) => m.idMeal)
-        ),
-      areaAll
-        ? null
-        : fetchJson(`${API}/filter.php?a=${encodeURIComponent(area)}`).then((d) =>
-          (d.meals || []).map((m) => m.idMeal)
-        ),
-    ]);
-
-    if (catIds && areaIds) {
-      const set = new Set(catIds);
-      return areaIds.filter((x) => set.has(x));
-    }
-    return (catIds || areaIds) ?? [];
-  }
-
-
-
-  async function handleSelectCategory(cat) {
-    setActiveCat(cat);
-    setActiveTab("category");
-    setShowCats(false);
-    setLoading(true);
-
-    const ids = await getIdsForFilters(cat, activeCuisine);
-    setAllMealIds(ids);
-    setCurrentPage(1);
-
-    setTimeout(async () => {
-      await loadPage(1, ids);
-      setLoading(false);
-    }, MICRO_DELAY);
-  }
-
-  async function handleSelectCuisine(area) {
-    setActiveCuisine(area);
-    setActiveTab("cuisine");
-    setShowCuisine(false);
-    setLoading(true);
-
-    const ids = await getIdsForFilters(activeCat, area);
-    setAllMealIds(ids);
-    setCurrentPage(1);
-
-    setTimeout(async () => {
-      await loadPage(1, ids);
-      setLoading(false);
-    }, MICRO_DELAY);
-  }
-
-  // ======== SEARCH ========
-  async function handleSearchSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-
-    const data = await fetchJson(`${API}/search.php?s=${encodeURIComponent(query)}`);
-    const ids = (data.meals || []).map((m) => m.idMeal);
-    setActiveCat("All");
-    setActiveCuisine("All");
-    setActiveTab(null);
-    setAllMealIds(ids);
-    setCurrentPage(1);
-
-    setTimeout(async () => {
-      await loadPage(1, ids);
-      setLoading(false);
-    }, MICRO_DELAY);
-  }
-
-  // ======== HOME (RESET TO ALL) ========
-  async function handleGoHome() {
-    setActiveCat("All");
-    setActiveCuisine("All");
-    setActiveTab(null);
-    setLoading(true);
-
-    const ids = allIdsCache.length ? allIdsCache : await fetchAllMealIds();
-    if (!allIdsCache.length) setAllIdsCache(ids);
-
-    setAllMealIds(ids);
-    setCurrentPage(1);
-
-    setTimeout(async () => {
-      await loadPage(1, ids);
-      setLoading(false);
-    }, MICRO_DELAY);
-  }
-
-  // ======== PAGINATION EFFECTS ========
-  useEffect(() => {
-    if (!allMealIds.length) {
-      setRecipes([]);
-      return;
-    }
-    setLoading(true);
-    (async () => {
-      await loadPage(currentPage);
-      setLoading(false);
-      document.querySelector(".grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    })();
-
-  }, [currentPage]);
-
-  useEffect(() => {
-    const tp = Math.max(1, Math.ceil(allMealIds.length / pageSize));
-    if (currentPage > tp) setCurrentPage(tp);
-
-  }, [allMealIds]);
-
+  /* ================================
+     RENDER
+     ================================ */
   return (
-    <div className="app">
-      {/* NAVBAR */}
-      <nav className="navbar">
-        <div className="logo">
-          <img src={logoImg} alt="Smart Chef logo" />
-        </div>
+    <>
+      {/* ======================================================
+          HEADER (brand + primary nav + profile dropdown)
+          ====================================================== */}
+      <header className="rp-header">
+        <div className="rp-shell">
+          {/* Brand / Logo */}
+          <Link className="rp-brand" to="/">
+            <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+            <span className="rp-wordmark">recipe <br />palette.</span>
+          </Link>
 
-        <ul className="nav-links">
-          <li
-            className={
-              location.pathname === "/" && activeCat === "All" && activeCuisine === "All"
-                ? "active"
-                : ""
-            }
-          >
-            <Link to="/" onClick={handleGoHome}>Home</Link>
-          </li>
+          <div className="rp-right">
+            {/* Primary navigation */}
+            <nav className="rp-nav">
+              <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
+              <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
+              <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
+              <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
+            </nav>
 
-          <li className={location.pathname === "/about" ? "active" : ""}>
-            <Link to="/about">About</Link>
-          </li>
-
-          <li
-            className={`nav-cat ${activeTab === "category" && activeCat !== "All" ? "active" : ""}`}
-            ref={catRef}
-          >
-            <button
-              className="cat-trigger"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCuisine(false);
-                setShowCats((s) => !s);
-              }}
-            >
-              Categories
-            </button>
-            {showCats && (
-              <ul className="cat-dropdown" role="menu" aria-label="Categories">
-                {["All", ...categories].map((cat) => (
-                  <li key={cat}>
-                    <button
-                      type="button"
-                      className={`cat-item ${activeCat === cat ? "active" : ""}`}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSelectCategory(cat);
-                      }}
-                    >
-                      {cat}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-
-          <li
-            className={`nav-cuisine ${activeTab === "cuisine" && activeCuisine !== "All" ? "active" : ""
-              }`}
-            ref={cuisineRef}
-          >
-            <button
-              className="cuisine-trigger"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCats(false);
-                setShowCuisine((s) => !s);
-              }}
-            >
-              Cuisine
-            </button>
-            {showCuisine && (
-              <ul className="cuisine-dropdown" role="menu" aria-label="Cuisine">
-                {["All", ...cuisines].map((area) => (
-                  <li key={area}>
-                    <button
-                      type="button"
-                      className={`cuisine-item ${activeCuisine === area ? "active" : ""}`}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSelectCuisine(area);
-                      }}
-                    >
-                      {area}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        </ul>
-
-        {/* Profile menu */}
-        <div className="profile" ref={profileRef}>
-          <button
-            type="button"
-            className="profile-btn"
-            aria-label="Profile menu"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowProfile((s) => !s);
-            }}
-            title="Profile"
-          >
-            {auth.currentUser && auth.currentUser.photoURL ? (
-              <img
-                src={auth.currentUser.photoURL}
-                alt="Profile"
-                className="profile-img"
-              />
-            ) : (
-              <i className="bi bi-person-circle"></i>
-            )}
-          </button>
-
-
-          {showProfile && (
-            <div className="profile-menu" role="menu">
+            {/* Profile button + dropdown (logout) */}
+            <div className="rp-profile-wrap">
               <button
-                className="profile-item"
+                type="button"
+                className="rp-profile"
                 onClick={() => {
-                  setShowProfile(false);
-                  navigate("/saved");
+                  if (!isAuthed) { setShowLoginWarn(true); return; } 
+                  setOpen((o) => !o);                               
                 }}
+                aria-label={displayName}
+                title={displayName}
               >
-                <i className="bi bi-heart"></i>
-                <span>Saved Recipes</span>
+                {isAuthed && avatar ? (
+                  <img className="rp-avatar" src={avatar} alt={displayName} />
+                ) : (
+                  <i className="bi bi-person-circle" />
+                )}
               </button>
 
-              <button
-                className="profile-item"
-                onClick={async () => {
-                  setShowProfile(false);
-                  try {
-                    await signOut(auth);
-                  } finally {
-                    navigate("/login", { replace: true });
-                  }
-                }}
-              >
-                <i className="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-              </button>
+              {/* Dropdown panel */}
+              {isAuthed && open && (
+                <div className="rp-dropdown">
+                  <button
+                    className="rp-dropdown-item"
+                    onClick={async () => {
+                      await signOut(auth);
+                    
+                      navigate("/signin", { replace: true });
+                    }}
+                  >
+                    <i className="bi bi-box-arrow-right" /> Logout
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-      </nav>
-
-      {/* Home */}
-      <header className="hero">
-        <div className="hero-overlay">
-          <div className="hero-content">
-            <h1>SMART RECIPES. TASTIER MEALS.</h1>
-            <p>
-              Explore a world of flavors, discover handcrafted recipes, and let the aroma of our
-              passion for cooking fill your kitchen
-            </p>
-
-            <form className="search-bar" onSubmit={handleSearchSubmit}>
-              <i className="bi bi-search search-icon" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by dish, ingredient, …"
-              />
-            </form>
           </div>
         </div>
       </header>
 
-      {/* DESCRIPTION */}
-      <section className="description wrap">
-        <p>
-          Discover authentic flavors and cuisines from around the world, with hundreds of recipes ready to inspire your next meal.
-          Bring people together with good food and explore our collection of smart recipes that make every day special.
-        </p>
-      </section>
+      {/* ======================================================
+          MAIN CONTENT
+          ====================================================== */}
+      <main className="page">
+        <section className="hero">
+          <div className="hero__bg"></div>
 
-      {/* BREADCRUMB */}
-      <div className="wrap breadcrumb-wrap">
-        <span className="breadcrumb">
-          {activeCat !== "All" ? `Category > ${activeCat}` : "All Recipes"}
-          {activeCuisine !== "All" ? ` · Cuisine > ${activeCuisine}` : ""}
-        </span>
-        <div className="breadcrumb-line" />
-      </div>
+          <div className="hero__content">
+            <h1>DISCOVER TASTE INSPIRATION</h1>
+            <p className="lead">
+              Explore a palette of recipes, discover vibrant flavors, and let your kitchen
+              become the canvas for your culinary art. Turn everyday cooking into moments
+              of creativity and delight.
+            </p>
+            <Link to="/recipes" className="btn-accent">Discover More</Link>
+          </div>
+        </section>
 
-      {/* GRID */}
-      <main className="wrap grid">
-        {loading && <div className="loading">Loading</div>}
+        {/* ---------- ABOUT SECTION (small card) ---------- */}
+        <section className="about">
+          <div className="about__bg"></div>
+          <div className="about__card">
+            <h2>About Us</h2>
+            <p>
+              At <strong>recipe palette.,</strong> we believe cooking is more than just making meals.
+              It’s an art form. Like colors on a canvas, every ingredient adds depth, flavor,
+              and creativity to your kitchen.
+            </p>
+            <Link to="/about" className="btn-about">Learn More</Link>
+          </div>
+        </section>
 
-        {!loading &&
-          recipes.map((m) => (
-            <article key={m.idMeal} className="recipe-card">
-              <div className="card-media">
-                <img src={m.strMealThumb} alt={m.strMeal} />
-                <button
-                  className="card-overlay"
-                  onClick={() => setSelected(m)}
-                  aria-label={`View details for ${m.strMeal}`}
-                >
-                  View Details
-                </button>
-              </div>
+        {/* ---------- FEATURED RECIPES (Chicken x 8) ---------- */}
+        <section className="recipes">
+          {/* Title + See All link */}
+          <div className="recipes__bar">
+            <h2 className="recipes__title">SMART RECIPES. TASTIER MEALS.</h2>
+            <Link to="/recipes" className="btn-seeall">See All</Link>
+          </div>
 
-              {/* ♥ toggle */}
-              <button
-                className={`heart-btn ${savedRecipes.some((r) => r.idMeal === m.idMeal) ? "active" : ""
-                  }`}
-                onClick={() => {
-                  if (savedRecipes.some((r) => r.idMeal === m.idMeal)) {
-                    setSavedRecipes(savedRecipes.filter((r) => r.idMeal !== m.idMeal));
-                  } else {
-                    setSavedRecipes([...savedRecipes, m]);
-                  }
-                }}
-                aria-label="Save recipe"
-                title="Save recipe"
-              >
-                <i className="bi bi-heart-fill"></i>
+          {/* Grid of recipe cards */}
+          <div className="recipes-grid" id="recipesGrid">
+            {/* Loading / Error / Success states */}
+            {status === "loading" && <p style={{ color: "#888" }}>Loading recipes…</p>}
+            {status === "error" && <p style={{ color: "#b00" }}>Failed to load recipes.</p>}
+
+            {status === "success" && meals.map((m) => {
+              const meta = dotJoin(m.strCategory, m.strArea);
+              const summary = ingredientSummary(m);
+              return (
+                <article className="recipe-card" key={m.idMeal}>
+                  <div className="recipe-card__imgwrap">
+                    <img className="recipe-card__img" src={m.strMealThumb} alt={m.strMeal} />
+
+                    {/* Heart (favorite) toggle */}
+                    <button
+                      type="button"
+                      className={`r-like-btn ${isFav(m.idMeal) ? "is-active" : ""}`}
+                      onClick={() => toggleFavorite(m)}
+                      aria-label={isFav(m.idMeal) ? "Remove from favorites" : "Add to favorites"}
+                      title={isFav(m.idMeal) ? "Unheart" : "Heart"}
+                    >
+                      <i className={`bi ${isFav(m.idMeal) ? "bi-heart-fill" : "bi-heart" } r-like`} aria-hidden="true"></i>
+                    </button>
+                  </div>
+
+                  <div className="recipe-card__body">
+                    <div className="recipe-card__meta">{meta}</div>
+                    <h3 className="recipe-card__title">{m.strMeal}</h3>
+                    <p className="recipe-card__desc">{summary}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ---------- CTA: SIGN IN TO SAVE FAVORITES ---------- */}
+        <section className="cta-fav">
+          <div className="cta-fav__bg"></div>
+          <div className="cta-fav__card">
+            <h3>Add to Favorites</h3>
+            <p>
+              Whether you’re trying something new or perfecting a family favorite,
+              <strong> recipe palette.</strong> is your space to learn, create, and celebrate the joy of food.
+              Sign up to save your favorite recipes and build your personal flavor palette.
+            </p>
+
+            {isAuthed ? (
+              <button type="button" className="btn-cta is-disabled" disabled>
+                Signed In
               </button>
-
-              <div className="card-body">
-                <span className="category">
-                  {m.strCategory || "—"} · {m.strArea || "—"}
-                </span>
-                <h3>{m.strMeal}</h3>
-                {m.strInstructions && <p>{m.strInstructions.slice(0, 140)}…</p>}
-              </div>
-            </article>
-          ))}
+            ) : (
+              <Link to="/signin" className="btn-cta">Sign In</Link>
+            )}
+          </div>
+        </section>
       </main>
 
-      {/* PAGINATION */}
-      {!loading && totalPages > 1 && (
-        <div className="wrap">
-          <div className="pagination">
-            {/** window calc */}
-            {(() => {
-              const MAX_BTNS = 22;
-              const half = Math.floor(MAX_BTNS / 2);
-
-
-              let start = Math.max(1, currentPage - half);
-              let end = start + MAX_BTNS - 1;
-              if (end > totalPages) {
-                end = totalPages;
-                start = Math.max(1, end - MAX_BTNS + 1);
-              }
-
-              const goPrev = () => setCurrentPage((p) => Math.max(1, p - 1));
-              const goNext = () => setCurrentPage((p) => Math.min(totalPages, p + 1));
-
-              return (
-                <>
-                  <span onClick={goPrev} className={currentPage === 1 ? "disabled" : ""}>
-                    &lt;
-                  </span>
-
-                  {Array.from({ length: end - start + 1 }, (_, i) => start + i).map((num) => (
-                    <span
-                      key={num}
-                      className={currentPage === num ? "active" : ""}
-                      onClick={() => setCurrentPage(num)}
-                    >
-                      {num}
-                    </span>
-                  ))}
-
-                  <span
-                    onClick={goNext}
-                    className={currentPage === totalPages ? "disabled" : ""}
-                  >
-                    &gt;
-                  </span>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-
-
-
-      {/* MODAL */}
-      {selected && <RecipeModal meal={selected} onClose={() => setSelected(null)} />}
-
-      {/* FOOTER */}
+      {/* ======================================================
+          FOOTER
+          ====================================================== */}
       <footer className="site-footer">
         <div className="footer-top">
-          <p className="footer-copy">
-            Your trusted companion for recipes that inspire and meals that matter. Because every dish tells a story. Cook, share, and enjoy with Recipedia.
+          <p className="footer-tagline">
+            Your Trusted Companion For Recipes That Inspire And Meals That Matter.<br />
+            Because Every Dish Tells A Story. Cook, Share, And Enjoy With Recipe Palette.
           </p>
           <div className="footer-logos">
-            <img src={require("./Assets/logo.png")} alt="Smart Chef" className="footer-logo" />
-            <img src={require("./Assets/api logo.png")} alt="TheMealDB" className="footer-logo" />
+            <img src={Logo1} alt="Assets/logo.png" />
+            <img src={Logo2} alt="Assets/api logo.png" />
           </div>
         </div>
         <div className="footer-bottom">
-          <small>Copyright © 2025 Recipedia All Rights Reserved.</small>
+          <p>Copyright © 2025 Recipe Palette All Rights Reserved.</p>
         </div>
       </footer>
-    </div>
+
+      {/* ======================================================
+          LOGIN-REQUIRED MODAL (for guests)
+          ====================================================== */}
+      {showLoginWarn && (
+        <div
+          className="rp-modal is-open login-modal"   
+          aria-hidden="false"
+          onClick={(e) => {
+          
+            if (e.target.classList.contains("rp-modal__scrim")) setShowLoginWarn(false);
+          }}
+        >
+          <div className="rp-modal__scrim" />
+          <div className="rp-modal__panel" role="dialog" aria-modal="true" aria-labelledby="needLogin">
+         
+            <div className="login-modal__icon" aria-hidden="true">
+              <i className="bi bi-exclamation-circle" />
+            </div>
+
+            <div className="rp-modal__head"><h3 id="needLogin">Sign in required</h3></div>
+
+            <div className="rp-modal__body">
+              <p>Sign in first to open the Favorites page or save recipes.</p>
+            </div>
+
+            <div className="rp-modal__foot">
+              <div className="rp-modal__actions">
+                <button className="btn-plain" type="button" onClick={() => setShowLoginWarn(false)}>Cancel</button>
+                <Link className="btn-accent" to="/signin">Sign in</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&display=swap');
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font-family: Poppins, sans-serif;
+    color: var(--brown);
+    padding-top: 110px;
+}
+
+.page {
+    width: 95%;
+    max-width: none;
+    margin: 24px auto 56px;
+}
+
+
+:root {
+    --header-h: 110px;
+    --footer-offset: 40vh;
+}
+
+.about-wrap {
+    min-height: calc(100svh - var(--header-h));
+    display: flex;
+    flex-direction: column;
+}
+
+.about-main {
+    flex: 1 0 auto;
+    min-height: calc(100svh - var(--header-h) + var(--footer-offset));
+    margin: 0 auto;
+    width: min(1100px, 94vw);
+}
+
+.about-wrap .site-footer {
+    margin-top: auto;
+}
+
+@media (max-width: 860px) {
+    :root {
+        --footer-offset: 30vh;
+    }
+
+    .about-main {
+        width: min(800px, 94vw);
+    }
+}

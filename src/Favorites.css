@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&display=swap');
+
+:root {
+    --orange: #B45309;
+    --accent: #EEAF0E;
+    --paper: #FFFFFF;
+    --brown: #B45309;
+    --pill-radius: 9999px;
+    --container: 1189px;
+}
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font-family: Poppins, sans-serif;
+    color: var(--brown);
+    padding-top: 110px;
+}
+
+.page {
+    width: 95%;
+    max-width: none;
+    margin: 24px auto 56px;
+}
+
+/*footer appear only after scrolling on the Favorites page */
+.fav-wrap {
+    min-height: calc(100svh - 110px);
+    display: flex;
+    flex-direction: column;
+}
+
+.fav-wrap .page {
+    flex: 1 0 auto;
+    width: 95%;
+    max-width: none;
+    margin: -5px auto 0;
+    min-height: calc(100svh - 110px + 35vh);
+}
+
+.fav-wrap .site-footer {
+    margin-top: auto;
+}
+
+/* Empty*/
+.favorites.is-empty {
+    display: grid;
+    place-items: center;
+    min-height: 60vh;
+    padding: 24px 0;
+}
+
+.favorites .r-empty {
+    width: min(720px, 92vw);
+    margin: 0 auto;
+    padding: 28px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #d0d0d0;
+}
+
+.r-empty__icon {
+    font-size: 56px;
+    color: #DF861E;
+    margin-bottom: -10px;
+}
+
+.r-empty__title {
+    margin: 6px 0 4px;
+    font-weight: 700;
+    font-size: 18px
+}
+
+.r-empty__desc {
+    margin: 0 0 16px;
+    color: rgba(64, 64, 64, .8);
+    font-size: 15px !important;
+}
+
+.favorites .btn-accent {
+    margin-top: 8px;
+}
+
+.r-like-btn .bi-heart {
+    color: #fff;
+}
+
+.r-like-btn.is-active .bi-heart-fill {
+    color: #DF861E;
+}
+
+body.rp-noscroll {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+}
+
+@media (max-width: 520px) {
+    .fav-wrap .page {
+        min-height: calc(100svh - 110px + 25vh);
+    }
+}

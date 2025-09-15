@@ -4,7 +4,6 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import "./About.css";
 import brandLogo from "./Assets/logo.png";
 

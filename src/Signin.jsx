@@ -80,7 +80,6 @@ export default function Signin() {
           make every meal special with Recipe&nbsp;Palette. Your trusted
           kitchen companion for everyday inspiration.
         </p>
-
         {/* Google CTA */}
         <button
           type="button"

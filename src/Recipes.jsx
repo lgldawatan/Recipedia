@@ -6,7 +6,6 @@ import { signOut } from "firebase/auth";
 import "./Recipes.css";
 import Logo1 from "./Assets/logo.png";
 import Logo2 from "./Assets/api logo.png";
-
 /**
  * Recipes Page
  * - Fetches recipes from TheMealDB

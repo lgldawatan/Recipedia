@@ -79,8 +79,8 @@ body {
 
 .r-empty__title {
     margin: 6px 0 4px;
+    font-size: 18px;
     font-weight: 700;
-    font-size: 18px
 }
 
 .r-empty__desc {

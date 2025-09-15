@@ -160,7 +160,6 @@ body.signin-view .rp-header {
 .auth-back-link:hover {
   color: var(--gold-1);
 }
-
 @media (max-width: 480px) {
   .auth-card {
     border-radius: 22px;

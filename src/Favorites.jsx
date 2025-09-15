@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
+import { signOut } from "firebase/auth";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Favorites.css";
 import brandLogo from "./Assets/logo.png";

@@ -4,8 +4,8 @@ import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { signOut } from "firebase/auth";
 import "./Home.css";
-import Logo1 from "./Assets/logo.png";
 import Logo2 from "./Assets/api logo.png";
+import Logo1 from "./Assets/logo.png";
 
 export default function Home({ user, savedRecipes, setSavedRecipes }) {
   /* ================================

@@ -2,8 +2,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import Home from "./Home";
 import Login from "./login";
+import Home from "./Home";
 
 function RequireAuth({ user, children }) {
   if (user === undefined) return null; 

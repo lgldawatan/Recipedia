@@ -125,7 +125,6 @@ function Root() {
           path="/signin"
           element={user ? <Navigate to="/" replace /> : <Signin />}
         />
-
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

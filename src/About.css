@@ -16,6 +16,217 @@ body {
     padding-top: 110px;
 }
 
+/* ── Slogan + icons row container (same look as screenshot) ───────────── */
+.about-page{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.about-sloganRow {
+  display: flex;                      /* use flexbox instead of grid */
+  justify-content: space-between;     /* space between text and icons */
+  align-items: stretch;               /* 👈 make children equal height */
+  gap: 28px;
+  padding: 18px 28px;
+  background: #fff;
+  border: 1.5px solid #e5e1d9;
+  border-radius: 14px;
+}
+
+/* slogan takes full height */
+.about-slogan {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertically center text inside */
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  color: #7a3b0a;
+  text-transform: uppercase;
+  line-height: 1.15;
+  margin: 0;
+  text-align: left;
+  font-size: clamp(32px, 3.5vw, 48px);
+}
+
+/* icons also stretch full height */
+.about-icons {
+  display: flex;
+  align-items: center;       /* center image vertically */
+}
+.about-icons img {
+  height: 150px;              /* make it fill the row height */    
+  width: auto;
+}
+
+
+/* ── Banner + centered card (unchanged from earlier) ──────────────────── */
+.about-banner{
+  position:relative;
+  border-radius:14px;
+  overflow:hidden;
+}
+.about-banner__img{ width:100%; display:block; }
+
+.about-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 90%);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  padding: clamp(18px, 3vw, 30px);
+
+  text-align: center;        /* 👈 center heading + paragraph */
+}
+
+.about-card h2 {
+  margin: 0 0 12px;
+  font-weight: 700;
+  font-size: clamp(22px,2.2vw,28px);
+  color: #25313a;
+}
+
+.about-card p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: clamp(16px,1.4vw,18px);
+  color: #2e2e2e;
+}
+
+/* ---------- INFO BLOCKS (below the hero banner) ---------- */
+.about-blocks{
+  width: 100%;
+  max-width: var(--container, 1189px); /* same width as Recipes */
+  margin: 12px auto 28px;
+}
+
+/* 2 columns on desktop, 1 column on mobile */
+.info-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+/* Base card */
+.info-card{
+  border-radius: 16px;
+  padding: clamp(18px, 2.6vw, 26px);
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+
+/* Headings */
+.info-card h3{
+  margin: 0 0 10px;
+  font-weight: 800;
+  font-size: clamp(18px, 2vw, 22px);
+  letter-spacing: .2px;
+}
+
+/* Paragraphs */
+.info-card p{
+  margin: 0 0 8px;
+  line-height: 1.6;
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+.info-card p:last-child{ margin-bottom: 0; }
+.info-card strong{ font-weight: 700; }
+
+/* Spanning full width rows */
+.span-2{ grid-column: 1 / -1; }
+
+/* Brand colors to match your screenshot */
+.info--navy  { background:#153945; }   /* deep teal/blue */
+.info--gold  { background:#e0aa20; }   /* mustard gold */
+.info--orange{ background:#cc7a1d; }   /* orange */
+
+/* Our Values card – right aligned text */
+.info--teal {
+  background: #87a9a9;    /* same teal */
+  text-align: right;      /* 👈 move text to the right side */
+  color: #fff;
+}
+
+.info--teal h3 {
+  text-align: right;      /* align heading right too */
+}
+
+/* ===== JOIN US banner ===== */
+.about-cta{
+  position: relative;
+  width: 100%;
+  max-width: var(--container, 1189px); /* align with Recipes width */
+  margin: 18px auto 36px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+}
+
+.about-cta__img{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.about-ctaCard{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 90%);
+  background: #fff;
+  border-radius: 14px;
+  padding: clamp(18px, 3vw, 26px);
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,.22);
+}
+
+.about-ctaCard h3{
+  margin: 0 0 10px;
+  font: 800 clamp(18px, 2.2vw, 24px) Poppins, sans-serif;
+  color: #153945; /* dark teal like your theme */
+}
+
+.about-ctaCard p{
+  margin: 0;
+  line-height: 1.6;
+  font-size: clamp(14px, 1.45vw, 16px);
+  color: #2e2e2e;
+}
+
+/* mobile: a bit tighter card */
+@media (max-width: 860px){
+  .about-ctaCard{ width: min(760px, 92%); }
+}
+
+
+/* Make the corners “pill-ish” like the image */
+.info-card{ border-radius: 16px; }
+@media (min-width: 900px){
+  .info-card{ border-radius: 16px; }
+}
+
+/* Mobile stacking */
+@media (max-width: 760px){
+  .info-grid{ grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: stack like mobile (text on top, icons below) ─────────── */
+@media (max-width: 860px){
+  .about-sloganRow{
+    grid-template-columns: 1fr;
+    justify-items:center;
+    text-align:center;
+    gap:14px;
+    padding:16px 14px;
+  }
+  .about-icons img{ height:86px; }
+}
+
 .page {
     width: 95%;
     max-width: none;

@@ -6,6 +6,10 @@ import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./About.css";
 import brandLogo from "./Assets/logo.png";
+import iconsRow from "./Assets/logo.png";
+import aboutBanner from "./Assets/about-banner1.png";
+import aboutBanner2 from "./Assets/about-banner2.png";
+
 
 export default function About({ user }) {
     const navigate = useNavigate();
@@ -105,7 +109,95 @@ export default function About({ user }) {
             {/* Empty page body; footer stays below the fold via CSS */}
             <div className="about-wrap">
                 <main className="page about-main">
-                    <section className="about-page" />
+                    <section className="about-page">
+                        <div className="about-sloganRow">
+                            <h1 className="about-slogan">
+                            EVERY RECIPE<br />
+                            IS A COLOR ON<br />
+                            YOUR PALETTE
+                            </h1>
+
+                            <div className="about-icons">
+                            <img src={iconsRow} alt="Cooking icons" />
+                            </div>
+                        </div>
+
+                        <div className="about-banner">
+                            <img className="about-banner__img" src={aboutBanner} alt="" />
+                            <article className="about-card" role="region" aria-label="About Us">
+                            <h2>About Us</h2>
+                            <p>
+                                At <strong>recipe palette.</strong>, we believe cooking is more than just making meals.
+                                It’s an art form. Like colors on a canvas, every ingredient adds depth, flavor,
+                                and creativity to your kitchen.
+                            </p>
+                            </article>
+                        </div>
+                        </section>
+
+                        {/* INFO BLOCKS */}
+                        <section className="about-blocks">
+                        <div className="info-grid">
+
+                            {/* Our Story */}
+                            <article className="info-card info--navy">
+                            <h3>Our Story</h3>
+                            <p>
+                                Recipe Palette was born from the love of food and the belief that every kitchen
+                                can be a place of creativity. We wanted to create a space where flavors come
+                                together, cultures meet, and everyday meals are transformed into vibrant
+                                experiences. Whether you’re a beginner in the kitchen or a seasoned cook,
+                                our platform is designed to inspire, guide, and celebrate your journey.
+                            </p>
+                            </article>
+
+                            {/* Our Mission */}
+                            <article className="info-card info--gold">
+                            <h3>Our Mission</h3>
+                            <p>
+                                Our mission is to inspire home cooks and food lovers to explore diverse recipes,
+                                discover vibrant flavors, and transform simple ingredients into extraordinary
+                                dishes. At Recipe Palette, we believe that cooking has the power to bring joy,
+                                creativity, and connection into everyday life.
+                            </p>
+                            </article>
+
+                            {/* What We Offer (full width) */}
+                            <article className="info-card info--orange span-2">
+                            <h3>What We Offer</h3>
+                            <p><strong>Global Recipes</strong> – Discover dishes from around the world.</p>
+                            <p><strong>Creative Cooking</strong> – Transform everyday meals into colorful creations.</p>
+                            <p><strong>Save Favorites</strong> – Log in to build your own personal flavor palette.</p>
+                            <p><strong>Step-by-Step Guides</strong> – Clear instructions for beginners and experts alike.</p>
+                            </article>
+
+                            {/* Our Values (full width) */}
+                            <article className="info-card info--teal span-2">
+                            <h3>Our Values</h3>
+                            <p><strong>Creativity</strong> – Cooking is a canvas for self-expression.</p>
+                            <p><strong>Community</strong> – Food tastes better when it’s shared.</p>
+                            <p><strong>Diversity</strong> – Every culture brings flavors worth celebrating.</p>
+                            </article>
+
+                        </div>
+                        </section>
+
+                        {/* JOIN US banner (after info cards) */}
+                        <section className="about-cta">
+                        <img className="about-cta__img" src={aboutBanner2} alt="Colorful dishes background" />
+                        <article className="about-ctaCard" role="region" aria-label="Join Us">
+                            <h3>Join Us</h3>
+                            <p>
+                            At Recipe Palette, we celebrate the joy of food and the art of flavor.
+                            Explore new dishes, create your own, and share the stories behind every meal.
+                            Because every recipe adds color to your journey — and together, they create
+                            a palette worth savoring.
+                            </p>
+                        </article>
+                        </section>
+
+
+
                 </main>
 
                 <footer className="site-footer">
@@ -115,7 +207,6 @@ export default function About({ user }) {
                             Because Every Dish Tells A Story. Cook, Share, And Enjoy With Recipe Palette.
                         </p>
                         <div className="footer-logos">
-                            <img src={brandLogo} alt="logo" />
                             <img src={brandLogo} alt="logo" />
                         </div>
                     </div>

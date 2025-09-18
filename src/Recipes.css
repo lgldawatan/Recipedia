@@ -417,3 +417,64 @@ body{
   --profile-size: 48px;  
   --profile-icon: 35px;   
 }
+
+/* ===== Card hover overlay ===== */
+.r-card__imgwrap{ position:relative; overflow:hidden; }
+.r-card__overlay{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.45);
+  color:#fff; font:700 18px Poppins, sans-serif;
+  border:0; cursor:pointer; opacity:0; transition:opacity .18s ease;
+}
+.r-card__imgwrap:hover .r-card__overlay{ opacity:1; }
+.r-card__overlay span{ text-shadow:0 2px 6px rgba(0,0,0,.35); }
+
+/* ===== Recipe details modal ===== */
+.rp-modal--recipe{ width:min(900px, 94vw); }
+.rp-modal__close{
+  position:absolute; top:10px; right:14px;
+  width:34px; height:34px; border:0; background:#f4f4f4;
+  border-radius:50%; font-size:20px; line-height:34px;
+  cursor:pointer; color:#444;
+}
+.rp-modal__close:hover{ background:#eee; }
+
+.rmodal{ padding: 18px 20px 22px; }
+.rmodal__name{
+  margin: 0 0 10px;
+  font: 700 18px Poppins, sans-serif;
+  color:#0f2a3f;
+}
+
+.rmodal__section{ margin-top: 12px; }
+.rmodal__section h4{
+  margin: 0 0 8px; font:600 15px Poppins, sans-serif; color:#222;
+}
+
+/* ingredient pills */
+.rmodal__chips{
+  display:flex; flex-wrap:wrap; gap:10px; margin-bottom: 6px;
+}
+.rmodal__chip{
+  min-height: 38px;
+  display:inline-flex; align-items:center;
+  padding: 8px 12px;
+  background:#fff; border:1px solid #d7d7d7;
+  border-radius:12px; color:#333; font:500 14px Poppins, sans-serif;
+}
+
+/* instructions list */
+.rmodal__steps{
+  margin: 6px 0 10px 18px;
+  padding: 0;
+  color:#333; line-height:1.6; font-size:15px;
+}
+.rmodal__steps li{ margin-bottom: 6px; }
+
+/* youtube link */
+.rmodal__yt{
+  display:inline-block; margin-top: 6px; color:#DF861E; font-weight:600; text-decoration:none;
+}
+.rmodal__yt:hover{ text-decoration:underline; }
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -53,6 +53,30 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   const [selCats, setSelCats] = useState(new Set()); // selected categories
   const [selAreas, setSelAreas] = useState(new Set());// selected areas
 
+  // details modal
+  const [detailMeal, setDetailMeal] = useState(null);
+  const openMeal = (m) => { setDetailMeal(m); document.body.classList.add("rp-noscroll"); };
+  const closeMeal = () => { setDetailMeal(null); document.body.classList.remove("rp-noscroll"); };
+
+  // build full ingredients list (measure + ingredient)
+  const listIngredients = (m) => {
+    const out = [];
+    for (let i = 1; i <= 20; i++) {
+      const ing = m[`strIngredient${i}`];
+      const mea = m[`strMeasure${i}`];
+      if (ing && ing.trim()) out.push(`${(mea || "").trim()} ${ing.trim()}`.trim());
+    }
+    return out;
+  };
+
+  // split instructions into bullets
+  const stepsFromText = (txt = "") =>
+    txt
+      .split(/\r?\n+/)           // split on new lines
+      .map(s => s.trim())
+      .filter(Boolean);
+
+
   // Login-required prompt modal
   const [showLoginWarn, setShowLoginWarn] = useState(false);
 
@@ -66,7 +90,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   // ==============================
   // Small utilities
   // ==============================
-  const j = async (u) => (await fetch(u)).json();                       // fetch -> json
+  const j = useCallback(async (u) => (await fetch(u)).json(), []);      // fetch -> json
   const dotJoin = (...xs) => xs.filter(Boolean).join(" • ");            // join with bullets
   const ingredientSummary = (m, take = 8) => {                          // compose "measure ingredient" list
     const items = [];
@@ -118,7 +142,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   // - loadAll(): fetches A-Z meals, de-dupes, sorts
   // - Effect: initial load + fetch lists for categories & areas
   // ==============================
-  async function loadAll() {
+  const loadAll = useCallback(async () => {
     setStatus("loading");
     setErrMsg("");
     try {
@@ -149,24 +173,24 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
       setFull([]); setAll([]);
       setStatus("error");
     }
-  }
+  }, [API, LABEL_ALL, j]);
 
   useEffect(() => {
-    (async () => {
-      // initial full dataset
-      await loadAll();
+  (async () => {
+    await loadAll();
 
-      // ancillary lists: categories & cuisines
-      try {
-        const cats = await j(`${API}/list.php?c=list`);
-        setCategories((cats.meals || []).map((x) => x.strCategory).sort());
-      } catch { /* ignore */ }
-      try {
-        const ars = await j(`${API}/list.php?a=list`);
-        setAreas((ars.meals || []).map((x) => x.strArea).sort());
-      } catch { /* ignore */ }
-    })();
-  }, []);
+    try {
+      const cats = await j(`${API}/list.php?c=list`);
+      setCategories((cats.meals || []).map(x => x.strCategory).sort());
+    } catch {}
+
+    try {
+      const ars = await j(`${API}/list.php?a=list`);
+      setAreas((ars.meals || []).map(x => x.strArea).sort());
+    } catch {}
+  })();
+}, [loadAll, j]); // ⬅ add j here
+
 
   // ==============================
   // Searching helpers
@@ -462,6 +486,17 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
               <article className="r-card" key={m.idMeal}>
                 <div className="r-card__imgwrap">
                   <img className="r-card__img" src={m.strMealThumb} alt={m.strMeal} />
+
+                  {/* Hover overlay */}
+                    <button
+                      type="button"
+                      className="r-card__overlay"
+                      onClick={() => openMeal(m)}
+                      aria-label={`View details for ${m.strMeal}`}
+                    >
+                      <span>View Details</span>
+                    </button>
+                  
                   {/* Favorite toggle (heart) */}
                   <button
                     type="button"
@@ -649,6 +684,52 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
           </div>
         </div>
       )}
+
+      {/* ========= RECIPE DETAILS MODAL ========= */}
+      {detailMeal && (
+        <div
+          className="rp-modal is-open recipe-modal"
+          aria-hidden="false"
+          onClick={(e) => { if (e.target.classList.contains("rp-modal__scrim")) closeMeal(); }}
+        >
+          <div className="rp-modal__scrim" />
+          <div className="rp-modal__panel rp-modal--recipe" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+            <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
+
+            <div className="rp-modal__body rmodal">
+              <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
+
+              <div className="rmodal__section">
+                <h4>Ingredients</h4>
+                <div className="rmodal__chips">
+                  {listIngredients(detailMeal).map((x, i) => (
+                    <span key={i} className="rmodal__chip">{x}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rmodal__section">
+                <h4>Instructions</h4>
+                <ul className="rmodal__steps">
+                  {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+
+                {detailMeal.strYoutube && (
+                  <a
+                    className="rmodal__yt"
+                    href={detailMeal.strYoutube}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    YouTube
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

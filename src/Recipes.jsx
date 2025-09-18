@@ -58,16 +58,6 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   const openMeal = (m) => { setDetailMeal(m); document.body.classList.add("rp-noscroll"); };
   const closeMeal = () => { setDetailMeal(null); document.body.classList.remove("rp-noscroll"); };
 
-  // build full ingredients list (measure + ingredient)
-  const listIngredients = (m) => {
-    const out = [];
-    for (let i = 1; i <= 20; i++) {
-      const ing = m[`strIngredient${i}`];
-      const mea = m[`strMeasure${i}`];
-      if (ing && ing.trim()) out.push(`${(mea || "").trim()} ${ing.trim()}`.trim());
-    }
-    return out;
-  };
 
   // split instructions into bullets
   const stepsFromText = (txt = "") =>
@@ -75,6 +65,25 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
       .split(/\r?\n+/)           // split on new lines
       .map(s => s.trim())
       .filter(Boolean);
+  // build objects: { name, measure, imgSmall, img2x }
+    const ingredientItems = (m) => {
+      const out = [];
+      for (let i = 1; i <= 20; i++) {
+        const name = (m[`strIngredient${i}`] || "").trim();
+        const measure = (m[`strMeasure${i}`] || "").trim();
+        if (!name) continue;
+
+        const slug = encodeURIComponent(name);
+        out.push({
+          name,
+          measure,
+          imgSmall: `https://www.themealdb.com/images/ingredients/${slug}-Small.png`,
+          img2x:    `https://www.themealdb.com/images/ingredients/${slug}.png`,
+        });
+      }
+      return out;
+    };
+
 
 
   // Login-required prompt modal
@@ -700,13 +709,26 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
               <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
 
               <div className="rmodal__section">
-                <h4>Ingredients</h4>
-                <div className="rmodal__chips">
-                  {listIngredients(detailMeal).map((x, i) => (
-                    <span key={i} className="rmodal__chip">{x}</span>
-                  ))}
-                </div>
+              <h4>Ingredients</h4>
+              <div className="rmodal__chips rmodal__chips--grid">
+                {ingredientItems(detailMeal).map((it, i) => (
+                  <figure key={i} className="ing">
+                    <img
+                      src={it.imgSmall}
+                      srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
+                      alt={it.name}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} // hide if missing
+                    />
+                    <figcaption>
+                      <strong>{it.name}</strong>
+                      {it.measure && <span className="ing__measure">{it.measure}</span>}
+                    </figcaption>
+                  </figure>
+                ))}
               </div>
+            </div>
+
 
               <div className="rmodal__section">
                 <h4>Instructions</h4>

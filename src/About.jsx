@@ -5,8 +5,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./About.css";
-import brandLogo from "./Assets/logo.png";
-import iconsRow from "./Assets/logo.png";
+import Logo1 from "./Assets/logo.png";
+import Logo2 from "./Assets/api.png";
 import aboutBanner from "./Assets/about-banner1.png";
 import aboutBanner2 from "./Assets/about-banner2.png";
 
@@ -58,7 +58,7 @@ export default function About({ user }) {
             <header className="rp-header">
                 <div className="rp-shell">
                     <Link className="rp-brand" to="/">
-                        <img className="rp-logo-stack" src={brandLogo} alt="Recipe Palette Logo" />
+                        <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
                         <span className="rp-wordmark">recipe <br />palette.</span>
                     </Link>
 
@@ -118,7 +118,7 @@ export default function About({ user }) {
                             </h1>
 
                             <div className="about-icons">
-                            <img src={iconsRow} alt="Cooking icons" />
+                            <img src={Logo1} alt="Cooking icons" />
                             </div>
                         </div>
 
@@ -207,7 +207,8 @@ export default function About({ user }) {
                             Because Every Dish Tells A Story. Cook, Share, And Enjoy With Recipe Palette.
                         </p>
                         <div className="footer-logos">
-                            <img src={brandLogo} alt="logo" />
+                            <img src={Logo1} alt="Assets/logo.png" />
+                            <img src={Logo2} alt="Assets/api.png" />
                         </div>
                     </div>
                     <div className="footer-bottom">

@@ -401,3 +401,24 @@ body {
     width: min(640px, 92%);
   }
 }
+
+/* ===== Overlay button (View Details) on home cards ===== */
+.recipe-card__imgwrap { position: relative; overflow: hidden; }
+.recipe-card__overlay{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.45);
+  color:#fff; font:700 18px Poppins, sans-serif;
+  border:0; cursor:pointer; opacity:0; transition:opacity .18s ease;
+}
+.recipe-card__imgwrap:hover .recipe-card__overlay{ opacity:1; }
+.recipe-card__overlay span{ text-shadow:0 2px 6px rgba(0,0,0,.35); }
+
+/* Ensure close “×” sits inside the orange banner (same as Recipes) */
+.recipe-modal--simple .rp-modal__close{
+  position:absolute; top:0; right:0;
+  width:46px; height:46px; border:none;
+  border-radius:0; background:transparent;
+  color:#fff; font-size:26px; line-height:46px; cursor:pointer; z-index:4;
+}
+.recipe-modal--simple .rp-modal__close:hover{ background:rgba(0,0,0,.15); }

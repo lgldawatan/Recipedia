@@ -4,7 +4,7 @@ import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { signOut } from "firebase/auth";
 import "./Home.css";
-import Logo2 from "./Assets/api logo.png";
+import Logo2 from "./Assets/api.png";
 import Logo1 from "./Assets/logo.png";
 
 export default function Home({ user, savedRecipes, setSavedRecipes }) {
@@ -296,7 +296,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
           </p>
           <div className="footer-logos">
             <img src={Logo1} alt="Assets/logo.png" />
-            <img src={Logo2} alt="Assets/api logo.png" />
+            <img src={Logo2} alt="Assets/api.png" />
           </div>
         </div>
         <div className="footer-bottom">

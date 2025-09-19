@@ -4,7 +4,8 @@ import { auth } from "./firebase";
 import { signOut } from "firebase/auth";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Favorites.css";
-import brandLogo from "./Assets/logo.png";
+import Logo1 from "./Assets/logo.png";
+import Logo2 from "./Assets/api.png";
 
 export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) {
     const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
             <header className="rp-header">
                 <div className="rp-shell">
                     <Link className="rp-brand" to="/">
-                        <img className="rp-logo-stack" src={brandLogo} alt="Recipe Palette Logo" />
+                        <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
                         <span className="rp-wordmark">recipe <br />palette.</span>
                     </Link>
 
@@ -154,8 +155,8 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
                             Because Every Dish Tells A Story. Cook, Share, And Enjoy With Recipe Palette.
                         </p>
                         <div className="footer-logos">
-                            <img src={brandLogo} alt="logo" />
-                            <img src={brandLogo} alt="logo" />
+                            <img src={Logo1} alt="Assets/logo.png" />
+                                        <img src={Logo2} alt="Assets/api.png" />
                         </div>
                     </div>
                     <div className="footer-bottom">

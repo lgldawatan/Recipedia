@@ -201,6 +201,7 @@ body {
   margin: 48px auto 72px;
 }
 
+
 .recipes__bar {
   display: flex;
   align-items: center;
@@ -401,3 +402,4 @@ body {
     width: min(640px, 92%);
   }
 }
+

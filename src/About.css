@@ -1,9 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&display=swap');
 
 :root{
-  --container: 1189px;        /* ✅ match Recipes layout width */
-  --header-h: 110px;
-  --footer-offset: 40vh;
+  --container: 1189px !important;        /* ✅ match Recipes layout width */
 }
 
 /* ---------- Base ---------- */
@@ -92,7 +90,7 @@ body{
 .about-card p{
   margin:0;
   line-height:1.6;
-  font-size:clamp(16px,1.4vw,18px);
+  font-size:16px;
   color:#2e2e2e;
 }
 
@@ -170,7 +168,7 @@ body{
 .about-ctaCard p{
   margin:0;
   line-height:1.6;
-  font-size:clamp(18px,1.45vw,24px);
+  font-size:16px;
   color:#2e2e2e;
 }
 
@@ -191,4 +189,16 @@ body{
 
 @media (max-width: 760px){
   .info-grid{ grid-template-columns:1fr; }
+}
+/* ===== Align About page indention with global ===== */
+/* ===== Ensure About page sections align with global gutters ===== */
+.about-page,
+.about-sloganRow,
+.about-banner,
+.about-blocks,
+.about-cta {
+  width: 100% !important;       /* same as global page gutters */
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

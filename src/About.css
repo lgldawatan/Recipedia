@@ -170,7 +170,7 @@ body{
 .about-ctaCard p{
   margin:0;
   line-height:1.6;
-  font-size:clamp(14px,1.45vw,16px);
+  font-size:clamp(18px,1.45vw,24px);
   color:#2e2e2e;
 }
 

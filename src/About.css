@@ -202,3 +202,11 @@ body{
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+
+/* ===== Remove white background in Join Us banner ===== */
+.about-cta,
+.about-banner {
+  background: transparent !important; /* remove white */
+  box-shadow: none !important;       /* remove drop shadow if any */
+}

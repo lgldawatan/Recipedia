@@ -288,13 +288,14 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
                     <div className="recipe-card__imgwrap">
                       <img className="recipe-card__img" src={m.strMealThumb} alt={m.strMeal} />
                       <button
-                        type="button"
-                        className="recipe-card__overlay"
-                        onClick={() => openMeal(m)}
-                        aria-label={`View details for ${m.strMeal}`}
-                      >
-                        <span>View Details</span>
-                      </button>
+  type="button"
+  className="recipe-card__overlay"
+  onClick={() => openMeal(m)}
+  aria-label={`View details for ${m.strMeal}`}
+>
+  <span>View Details</span>
+</button>
+
 
                       <button
                         type="button"

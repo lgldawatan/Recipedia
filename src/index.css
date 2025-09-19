@@ -20,7 +20,7 @@ body.rp-noscroll {
 
 /* Navbar */
 .rp-header {
-  background: #B45309;
+  background: #cb7615;
   height: 90px;
   display: flex;
   align-items: center;
@@ -39,7 +39,6 @@ body.rp-noscroll {
   max-width: calc(var(--container) + 16rem);
   height: 60px;
   background: var(--paper);
-  border: 1px solid #919191;
   border-radius: var(--pill-radius);
   padding-inline: 50px;
   display: flex;
@@ -63,7 +62,7 @@ body.rp-noscroll {
   font-family: "Fredoka One", cursive;
   font-size: 19px;
   line-height: 1.1;
-  color: #AB3D02;
+  color: #0c2436;
 }
 
 /* Right side (nav + profile) */
@@ -82,7 +81,7 @@ body.rp-noscroll {
 .rp-link {
   font-size: 16px;
   text-decoration: none;
-  color: var(--brown);
+  color: #222;
   font-weight: 500;
 }
 
@@ -334,7 +333,7 @@ body.rp-noscroll {
 .rp-profile i {
   font-size: 38px;
   line-height: 1;
-  color: #B45309;
+  color: #0c2436;
 }
 
 

@@ -144,7 +144,7 @@ body {
   color: #fff;
   text-decoration: none;
   font-weight: 500;
-  padding: 15px 30px !important;
+  padding: 12px 30px !important;
   border-radius: 17px !important;
   box-shadow: 0 2px 0 rgba(0, 0, 0, .2);
   transition: ease-in-out .5s;
@@ -403,3 +403,26 @@ body {
   }
 }
 
+/* ===== Hover overlay (same as Recipes page) ===== */
+.recipe-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  font: 700 18px Poppins, sans-serif;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.recipe-card__imgwrap:hover .recipe-card__overlay {
+  opacity: 1;
+}
+
+.recipe-card__overlay span {
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}

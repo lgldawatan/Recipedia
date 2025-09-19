@@ -32,6 +32,16 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
         });
     };
 
+    const [detailMeal, setDetailMeal] = useState(null);
+const openMeal = (m) => {
+  setDetailMeal(m);
+  document.body.classList.add("rp-noscroll");
+};
+const closeMeal = () => {
+  setDetailMeal(null);
+  document.body.classList.remove("rp-noscroll");
+};
+
     // Lock page scroll while modal is open
     useEffect(() => {
         if (showLoginWarn) {
@@ -48,6 +58,27 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
             document.body.style.top = "";
         };
     }, [showLoginWarn]);
+
+    // build ingredient objects for the modal
+function ingredientItems(m){
+    const out = [];
+    for(let i=1;i<=20;i++){
+      const name = (m[`strIngredient${i}`]||"").trim();
+      const measure = (m[`strMeasure${i}`]||"").trim();
+      if(!name) continue;
+      const slug = encodeURIComponent(name);
+      out.push({
+        name, measure,
+        imgSmall: `https://www.themealdb.com/images/ingredients/${slug}-Small.png`,
+        img2x:    `https://www.themealdb.com/images/ingredients/${slug}.png`,
+      });
+    }
+    return out;
+  }
+  function stepsFromText(txt=""){
+    return txt.split(/\r?\n+/).map(s=>s.trim()).filter(Boolean);
+  }
+  
 
     return (
         <>
@@ -125,6 +156,16 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
                                             >
                                                 <i className={`bi ${isFav(m.idMeal) ? "bi-heart-fill" : "bi-heart"} r-like`} aria-hidden="true"></i>
                                             </button>
+
+                                            <button
+  type="button"
+  className="recipe-card__overlay"
+  onClick={() => openMeal(m)}
+  aria-label={`View details for ${m.strMeal}`}
+>
+  <span>View Details</span>
+</button>
+
                                         </div>
                                         <div className="recipe-card__body">
                                             <div className="recipe-card__meta">
@@ -156,7 +197,7 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
                         </p>
                         <div className="footer-logos">
                             <img src={Logo1} alt="Assets/logo.png" />
-                                        <img src={Logo2} alt="Assets/api.png" />
+                            <img src={Logo2} alt="Assets/api.png" />
                         </div>
                     </div>
                     <div className="footer-bottom">
@@ -164,6 +205,63 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
                     </div>
                 </footer>
             </div>
+{/* ========= FAVORITES: RECIPE DETAILS MODAL ========= */}
+{detailMeal && (
+  <div
+    className="rp-modal is-open recipe-modal"
+    aria-hidden="false"
+    onClick={(e) => {
+      if (e.target.classList.contains("rp-modal__scrim")) closeMeal();
+    }}
+  >
+    <div className="rp-modal__scrim" />
+    <div className="rp-modal__panel rp-modal--recipe recipe-modal--simple" role="dialog" aria-modal="true" aria-labelledby="favTitle">
+      <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
+
+      <div className="rmodal__banner">
+        <span>Learn About The Recipe</span>
+      </div>
+
+      <div className="rp-modal__body rmodal">
+        <h3 id="favTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
+
+        <div className="rmodal__section">
+          <h4 className="rmodal__label">Ingredients</h4>
+          <div className="rmodal__chips rmodal__chips--grid">
+            {ingredientItems(detailMeal).map((it, i) => (
+              <figure key={i} className="ing ing--card">
+                <img
+                  src={it.imgSmall}
+                  srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
+                  alt={it.name}
+                  loading="lazy"
+                  onError={(e)=>{ e.currentTarget.style.display="none"; }}
+                />
+                <figcaption>
+                  <strong className="ing__name">{it.name}</strong>
+                  {it.measure && <span className="ing__measure">{it.measure}</span>}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+
+        <div className="rmodal__section">
+          <h4 className="rmodal__label">Instructions</h4>
+          <ul className="rmodal__steps">
+            {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
+          </ul>
+
+          {detailMeal.strYoutube && (
+            <a className="rmodal__yt rmodal__yt--solo" href={detailMeal.strYoutube} target="_blank" rel="noreferrer">
+              Youtube
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
             {/* Login required modal */}
             {showLoginWarn && (

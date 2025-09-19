@@ -696,62 +696,76 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
 
       {/* ========= RECIPE DETAILS MODAL ========= */}
       {detailMeal && (
-        <div
-          className="rp-modal is-open recipe-modal"
-          aria-hidden="false"
-          onClick={(e) => { if (e.target.classList.contains("rp-modal__scrim")) closeMeal(); }}
-        >
-          <div className="rp-modal__scrim" />
-          <div className="rp-modal__panel rp-modal--recipe" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
-            <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
+  <div
+    className="rp-modal is-open recipe-modal"
+    aria-hidden="false"
+    onClick={(e) => {
+      if (e.target.classList.contains("rp-modal__scrim")) closeMeal();
+    }}
+  >
+    <div className="rp-modal__scrim" />
+    <div className="rp-modal__panel rp-modal--recipe recipe-modal--simple" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+      {/* close button */}
+      <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
 
-            <div className="rp-modal__body rmodal">
-              <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
+      {/* orange banner */}
+      <div className="rmodal__banner">
+        <span>Learn About The Recipe</span>
+      </div>
 
-              <div className="rmodal__section">
-              <h4>Ingredients</h4>
-              <div className="rmodal__chips rmodal__chips--grid">
-                {ingredientItems(detailMeal).map((it, i) => (
-                  <figure key={i} className="ing">
-                    <img
-                      src={it.imgSmall}
-                      srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
-                      alt={it.name}
-                      loading="lazy"
-                      onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} // hide if missing
-                    />
-                    <figcaption>
-                      <strong>{it.name}</strong>
-                      {it.measure && <span className="ing__measure">{it.measure}</span>}
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            </div>
+      <div className="rp-modal__body rmodal">
+        {/* dish name */}
+        <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
 
+        {/* INGREDIENTS */}
+        <div className="rmodal__section">
+          <h4 className="rmodal__label">Ingredients</h4>
 
-              <div className="rmodal__section">
-                <h4>Instructions</h4>
-                <ul className="rmodal__steps">
-                  {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-
-                {detailMeal.strYoutube && (
-                  <a
-                    className="rmodal__yt"
-                    href={detailMeal.strYoutube}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    YouTube
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+          {/* simple cards (no image) */}
+          <div className="rmodal__chips rmodal__chips--grid">
+          {ingredientItems(detailMeal).map((it, i) => (
+            <figure key={i} className="ing ing--card">
+              <img
+                src={it.imgSmall}
+                srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
+                alt={it.name}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"; // hide if missing
+                }}
+              />
+              <figcaption>
+                <strong className="ing__name">{it.name}</strong>
+                {it.measure && <span className="ing__measure">{it.measure}</span>}
+              </figcaption>
+            </figure>
+          ))}
         </div>
-      )}
 
+        </div>
+
+        {/* INSTRUCTIONS */}
+        <div className="rmodal__section">
+          <h4 className="rmodal__label">Instructions</h4>
+          <ul className="rmodal__steps">
+            {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
+          </ul>
+
+          {detailMeal.strYoutube && (
+            <a
+              className="rmodal__yt rmodal__yt--solo"
+              href={detailMeal.strYoutube}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Youtube
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 }

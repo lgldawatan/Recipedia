@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { signOut } from "firebase/auth";
 import "./Recipes.css";
+import "./index.css";
 import Logo1 from "./Assets/logo.png";
 import Logo2 from "./Assets/api.png";
 /**
@@ -45,6 +46,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   const [q, setQ] = useState("");                    // search query string
   const [status, setStatus] = useState("idle");      // "idle" | "loading" | "success" | "error"
   const [errMsg, setErrMsg] = useState("");          // error text when status === "error"
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Filter modal controls and options
   const [isOpen, setIsOpen] = useState(false);       // filters modal open?
@@ -353,60 +355,107 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
     <>
       {/* ================= Header (brand + primary nav + profile) ================= */}
       <header className="rp-header">
-        <div className="rp-shell">
-          {/* Brand / Logo */}
-          <Link className="rp-brand" to="/">
-            <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
-            <span className="rp-wordmark">recipe <br />palette.</span>
-          </Link>
+  <div className="rp-shell">
+    {/* Brand / Logo */}
+    <Link
+      className="rp-brand"
+      to="/"
+      onClick={() => { setOpen(false); }}
+    >
+      <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+      <span className="rp-wordmark">
+        recipe <br /> palette.
+      </span>
+    </Link>
 
-          <div className="rp-right">
-            {/* Primary nav links */}
-            <nav className="rp-nav">
-              <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
-              <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
-              <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
-              <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
-            </nav>
+    <div className="rp-right">
+      {/* Primary nav */}
+      <nav className="rp-nav">
+        <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
+        <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
+        <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
+        <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
+      </nav>
 
-            {/* Profile button + dropdown (logout) */}
-            <div className="rp-profile-wrap">
-              <button
-                type="button"
-                className="rp-profile"
-                onClick={() => {
-                  if (!isAuthed) { setShowLoginWarn(true); return; }
-                  setOpen((o) => !o);
-                }}
-                aria-label={displayName}
-                title={displayName}
-              >
-                {isAuthed && avatar ? (
-                  <img className="rp-avatar" src={avatar} alt={displayName} />
-                ) : (
-                  <i className="bi bi-person-circle" />
-                )}
-              </button>
-
-              {/* Dropdown panel */}
-              {isAuthed && open && (
-                <div className="rp-dropdown">
-                  <button
-                    className="rp-dropdown-item"
-                    onClick={async () => {
-                      // sign out then redirect to Sign In
-                      await signOut(auth);
-                      navigate("/signin", { replace: true });
-                    }}
-                  >
-                    <i className="bi bi-box-arrow-right" /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
+      {/* Profile dropdown */}
+      <div className="rp-profile-wrap">
+        <button
+          type="button"
+          className="rp-profile"
+          onClick={() => {
+            if (!isAuthed) { setShowLoginWarn(true); return; }
+            setOpen((o) => !o);
+          }}
+          aria-label={displayName}
+          title={displayName}
+        >
+          {isAuthed && avatar ? (
+            <img className="rp-avatar" src={avatar} alt={displayName} />
+          ) : (
+            <i className="bi bi-person-circle" />
+          )}
+        </button>
+        {isAuthed && open && (
+          <div className="rp-dropdown">
+            <button
+              className="rp-dropdown-item"
+              onClick={async () => {
+                await signOut(auth);
+                navigate("/signin", { replace: true });
+              }}
+            >
+              <i className="bi bi-box-arrow-right" /> Logout
+            </button>
           </div>
-        </div>
-      </header>
+        )}
+      </div>
+    </div>
+
+    {/* Burger button (shown ≤900px via CSS) */}
+    <button
+      type="button"
+      className="rp-menu-btn"
+      aria-label="Open menu"
+      aria-controls="mobileMenu"
+      aria-expanded={menuOpen ? "true" : "false"}
+      onClick={() => setMenuOpen(v => !v)}
+    >
+      <i className="bi bi-list"></i>
+    </button>
+  </div>
+
+  {/* Mobile panel (same as Home) */}
+  <div className={`mobile-panel ${menuOpen ? "is-open" : ""}`} id="mobileMenu" role="dialog" aria-modal="true">
+    <div className="mobile-panel__head">
+      <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>
+        <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+        <span className="rp-wordmark">recipe<br/>palette.</span>
+      </Link>
+      <button type="button" className="mobile-panel__close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
+    </div>
+
+    <nav className="mobile-nav" aria-label="Mobile">
+      <NavLink to="/" end onClick={() => setMenuOpen(false)}>Home</NavLink>
+      <NavLink to="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
+      <NavLink to="/recipes" onClick={() => setMenuOpen(false)}>Recipes</NavLink>
+      <NavLink to="/favorites" onClick={(e) => { handleFavoritesNav(e); setMenuOpen(false); }}>Favorites</NavLink>
+
+      {!isAuthed ? (
+        <NavLink to="/signin" className="mobile-nav__cta" onClick={() => setMenuOpen(false)}>Sign In</NavLink>
+      ) : (
+        <button className="mobile-nav__cta" onClick={async () => { setMenuOpen(false); await signOut(auth); navigate("/signin", { replace: true }); }}>Logout</button>
+      )}
+    </nav>
+  </div>
+
+  {/* Scrim */}
+  <button
+    className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
+    aria-hidden={!menuOpen}
+    onClick={() => setMenuOpen(false)}
+  />
+</header>
+
 
       {/* ================= Main content ================= */}
       <main className="page recipes-page">

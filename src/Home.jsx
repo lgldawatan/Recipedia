@@ -1,21 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { auth } from "./firebase";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { signOut } from "firebase/auth";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Home.css";
+import "./index.css";
 import Logo2 from "./Assets/api.png";
 import Logo1 from "./Assets/logo.png";
 
-export default function Home({ user, savedRecipes, setSavedRecipes }) {
+export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
   /* ================================
      UI STATE / NAV HELPERS
      ================================ */
-  const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false); // profile dropdown
+  const [menuOpen, setMenuOpen] = useState(false);       // mobile drawer
+  const [showLoginWarn, setShowLoginWarn] = useState(false);
+
   const navigate = useNavigate();
   const scrollLockY = useRef(0);
 
-  /* Sign out + redirect to /signin */
   async function handleLogout() {
     await signOut(auth);
     navigate("/signin", { replace: true });
@@ -33,8 +36,8 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
      ================================ */
   const [meals, setMeals] = useState([]);
   const [status, setStatus] = useState("idle"); // "idle" | "loading" | "success" | "error"
-  const [showLoginWarn, setShowLoginWarn] = useState(false);
   const [detailMeal, setDetailMeal] = useState(null);
+
   const openMeal = (m) => {
     setDetailMeal(m);
     document.body.classList.add("rp-noscroll");
@@ -44,10 +47,8 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
     document.body.classList.remove("rp-noscroll");
   };
 
-  /* Small utilities */
   const dotJoin = (...xs) => xs.filter(Boolean).join(" • ");
 
-  /* Build short ingredient list (measure + ingredient) */
   function ingredientSummary(meal, take = 8) {
     const items = [];
     for (let i = 1; i <= 20; i++) {
@@ -58,7 +59,6 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
     return items.slice(0, take).join(", ");
   }
 
-  /* Build ingredient items (with images) + split steps */
   function ingredientItems(m) {
     const out = [];
     for (let i = 1; i <= 20; i++) {
@@ -75,15 +75,16 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
     }
     return out;
   }
+
   function stepsFromText(txt = "") {
     return txt.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean);
   }
 
   /* ================================
-     BODY SCROLL-LOCK WHEN MODAL IS OPEN
+     BODY SCROLL-LOCK WHEN MODALS OPEN
      ================================ */
   useEffect(() => {
-    if (showLoginWarn) {
+    if (showLoginWarn || menuOpen) {
       scrollLockY.current = window.scrollY || 0;
       document.body.style.top = `-${scrollLockY.current}px`;
       document.body.classList.add("rp-noscroll");
@@ -96,10 +97,10 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
       document.body.classList.remove("rp-noscroll");
       document.body.style.top = "";
     };
-  }, [showLoginWarn]);
+  }, [showLoginWarn, menuOpen]);
 
   /* ================================
-     INITIAL LOAD: get featured meals
+     INITIAL LOAD
      ================================ */
   useEffect(() => {
     let cancelled = false;
@@ -133,19 +134,16 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
     }
 
     load();
-    return () => {
-      cancelled = true;
-    };
-  }, []); // run once
+    return () => { cancelled = true; };
+  }, []);
 
   /* ================================
      AUTH HELPERS
      ================================ */
-  const isAuthed = Boolean(user && user.uid);
+  const isAuthed = Boolean(user?.uid);
   const avatar = user?.photoURL || null;
   const displayName = user?.displayName || "Profile";
 
-  /* Toggle favorites (requires auth) */
   const toggleFavorite = (meal) => {
     if (!isAuthed) {
       setShowLoginWarn(true);
@@ -158,7 +156,6 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
   };
   const isFav = (id) => savedRecipes?.some((x) => x.idMeal === id);
 
-  /* Block /favorites route if not signed in */
   const handleFavoritesNav = (e) => {
     if (!isAuthed) {
       e.preventDefault();
@@ -177,7 +174,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
       <header className="rp-header">
         <div className="rp-shell">
           {/* Brand / Logo */}
-          <Link className="rp-brand" to="/">
+          <Link className="rp-brand" to="/" onClick={() => { setMenuOpen(false); setProfileOpen(false); }}>
             <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
             <span className="rp-wordmark">
               recipe <br />
@@ -185,21 +182,13 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
             </span>
           </Link>
 
+          {/* Desktop / tablet right side */}
           <div className="rp-right">
-            {/* Primary navigation */}
-            <nav className="rp-nav">
-              <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>
-                Home
-              </NavLink>
-              <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>
-                About
-              </NavLink>
-              <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>
-                Recipes
-              </NavLink>
-              <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>
-                Favorites
-              </NavLink>
+            <nav className="rp-nav" aria-label="Primary">
+              <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
+              <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
+              <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
+              <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
             </nav>
 
             {/* Profile button + dropdown (logout) */}
@@ -208,11 +197,8 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
                 type="button"
                 className="rp-profile"
                 onClick={() => {
-                  if (!isAuthed) {
-                    setShowLoginWarn(true);
-                    return;
-                  }
-                  setOpen((o) => !o);
+                  if (!isAuthed) { setShowLoginWarn(true); return; }
+                  setProfileOpen((o) => !o);
                 }}
                 aria-label={displayName}
                 title={displayName}
@@ -220,7 +206,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
                 {isAuthed && avatar ? <img className="rp-avatar" src={avatar} alt={displayName} /> : <i className="bi bi-person-circle" />}
               </button>
 
-              {isAuthed && open && (
+              {isAuthed && profileOpen && (
                 <div className="rp-dropdown">
                   <button className="rp-dropdown-item" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right" /> Logout
@@ -229,115 +215,147 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
               )}
             </div>
           </div>
+
+          {/* Mobile hamburger (shown by CSS at <= 900px) */}
+          <button
+  type="button"
+  className="rp-menu-btn"
+  aria-label="Open menu"
+  aria-controls="mobileMenu"
+  aria-expanded={menuOpen ? "true" : "false"}
+  onClick={() => setMenuOpen(v => !v)}
+>
+  <i className="bi bi-list"></i>
+</button>
         </div>
+
+        {/* Mobile slide-in panel */}
+        <div className={`mobile-panel ${menuOpen ? "is-open" : ""}`} id="mobileMenu" role="dialog" aria-modal="true">
+          <div className="mobile-panel__head">
+            <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>
+              <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+              <span className="rp-wordmark">recipe<br/>palette.</span>
+            </Link>
+            <button type="button" className="mobile-panel__close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
+          </div>
+
+          <nav className="mobile-nav" aria-label="Mobile">
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <NavLink to="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
+            <NavLink to="/recipes" onClick={() => setMenuOpen(false)}>Recipes</NavLink>
+            <NavLink to="/favorites" onClick={(e) => { handleFavoritesNav(e); setMenuOpen(false); }}>Favorites</NavLink>
+
+            {!isAuthed ? (
+              <NavLink to="/signin" className="mobile-nav__cta" onClick={() => setMenuOpen(false)}>Sign In</NavLink>
+            ) : (
+              <button className="mobile-nav__cta" onClick={() => { setMenuOpen(false); handleLogout(); }}>Logout</button>
+            )}
+          </nav>
+        </div>
+
+        {/* Scrim behind the mobile panel */}
+        <button
+          className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
+          aria-hidden={!menuOpen}
+          onClick={() => setMenuOpen(false)}
+        />
       </header>
 
       {/* ======================================================
           MAIN CONTENT
           ====================================================== */}
       <main className="page">
+        {/* ---------- HERO ---------- */}
         <section className="hero">
           <div className="hero__bg"></div>
-
           <div className="hero__content">
             <h1>DISCOVER TASTE INSPIRATION</h1>
             <p className="lead">
-              Explore a palette of recipes, discover vibrant flavors, and let your kitchen become the canvas for your culinary art. Turn everyday cooking
-              into moments of creativity and delight.
+              Explore a palette of recipes, discover vibrant flavors, and let your kitchen become the canvas for your culinary art.
+              Turn everyday cooking into moments of creativity and delight.
             </p>
-            <Link to="/recipes" className="btn-accent">
-              Discover More
-            </Link>
+            <Link to="/recipes" className="btn-accent">Discover More</Link>
           </div>
         </section>
 
-        {/* ---------- ABOUT SECTION (small card) ---------- */}
+        {/* ---------- ABOUT ---------- */}
         <section className="about">
           <div className="about__bg"></div>
           <div className="about__card">
             <h2>About Us</h2>
             <p>
-              At <strong>recipe palette.,</strong> we believe cooking is more than just making meals. It’s an art form. Like colors on a canvas, every
-              ingredient adds depth, flavor, and creativity to your kitchen.
+              At <strong>recipe palette.</strong> we believe cooking is more than just making meals—it’s an art.
+              Like colors on a canvas, every ingredient adds depth, flavor, and creativity to your kitchen.
             </p>
-            <Link to="/about" className="btn-about">
-              Learn More
-            </Link>
+            <Link to="/about" className="btn-about">Learn More</Link>
           </div>
         </section>
 
-        {/* ---------- FEATURED RECIPES (Chicken x 8) ---------- */}
+        {/* ---------- FEATURED RECIPES ---------- */}
         <section className="recipes">
           <div className="recipes__bar">
             <h2 className="recipes__title">SMART RECIPES. TASTIER MEALS.</h2>
-            <Link to="/recipes" className="btn-seeall">
-              See All
-            </Link>
+            <Link to="/recipes" className="btn-seeall">See All</Link>
           </div>
 
           <div className="recipes-grid" id="recipesGrid">
             {status === "loading" && <p style={{ color: "#888" }}>Loading recipes…</p>}
             {status === "error" && <p style={{ color: "#b00" }}>Failed to load recipes.</p>}
 
-            {status === "success" &&
-              meals.map((m) => {
-                const meta = dotJoin(m.strCategory, m.strArea);
-                const summary = ingredientSummary(m);
-                return (
-                  <article className="recipe-card" key={m.idMeal}>
-                    <div className="recipe-card__imgwrap">
-                      <img className="recipe-card__img" src={m.strMealThumb} alt={m.strMeal} />
-                      <button
-  type="button"
-  className="recipe-card__overlay"
-  onClick={() => openMeal(m)}
-  aria-label={`View details for ${m.strMeal}`}
->
-  <span>View Details</span>
-</button>
+            {status === "success" && meals.map((m) => {
+              const meta = dotJoin(m.strCategory, m.strArea);
+              const summary = ingredientSummary(m);
+              return (
+                <article className="recipe-card" key={m.idMeal}>
+                  <div className="recipe-card__imgwrap">
+                    <img className="recipe-card__img" src={m.strMealThumb} alt={m.strMeal} />
+                    {/* View details overlay (clickable without blocking the heart) */}
+                    <button
+                      type="button"
+                      className="recipe-card__overlay"
+                      onClick={() => openMeal(m)}
+                      aria-label={`View details for ${m.strMeal}`}
+                    >
+                      <span>View Details</span>
+                    </button>
 
+                    {/* Favorite heart (stays clickable even on hover) */}
+                    <button
+                      type="button"
+                      className={`r-like-btn ${isFav(m.idMeal) ? "is-active" : ""}`}
+                      onClick={() => toggleFavorite(m)}
+                      aria-label={isFav(m.idMeal) ? "Remove from favorites" : "Add to favorites"}
+                      title={isFav(m.idMeal) ? "Unheart" : "Heart"}
+                    >
+                      <i className={`bi ${isFav(m.idMeal) ? "bi-heart-fill" : "bi-heart"} r-like`} aria-hidden="true"></i>
+                    </button>
+                  </div>
 
-                      <button
-                        type="button"
-                        className={`r-like-btn ${isFav(m.idMeal) ? "is-active" : ""}`}
-                        onClick={() => toggleFavorite(m)}
-                        aria-label={isFav(m.idMeal) ? "Remove from favorites" : "Add to favorites"}
-                        title={isFav(m.idMeal) ? "Unheart" : "Heart"}
-                      >
-                        <i className={`bi ${isFav(m.idMeal) ? "bi-heart-fill" : "bi-heart"} r-like`} aria-hidden="true"></i>
-                      </button>
-                    </div>
-
-                    <div className="recipe-card__body">
-                      <div className="recipe-card__meta">{meta}</div>
-                      <h3 className="recipe-card__title">{m.strMeal}</h3>
-                      <p className="recipe-card__desc">{summary}</p>
-                    </div>
-                  </article>
-                );
-              })}
+                  <div className="recipe-card__body">
+                    <div className="recipe-card__meta">{meta}</div>
+                    <h3 className="recipe-card__title">{m.strMeal}</h3>
+                    <p className="recipe-card__desc">{summary}</p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 
-        {/* ---------- CTA: SIGN IN TO SAVE FAVORITES ---------- */}
+        {/* ---------- CTA (Sign in to save) ---------- */}
         <section className="cta-fav">
           <div className="cta-fav__bg"></div>
           <div className="cta-fav__card">
             <h3>Add to Favorites</h3>
             <p>
-              Whether you’re trying something new or perfecting a family favorite,
-              <strong> recipe palette.</strong> is your space to learn, create, and celebrate the joy of food. Sign up to save your favorite recipes and
-              build your personal flavor palette.
+              Whether you’re trying something new or perfecting a family classic, <strong>recipe palette.</strong> is your space to learn, create,
+              and celebrate the joy of food. Sign up to save your favorite recipes and build your personal flavor palette.
             </p>
 
             {isAuthed ? (
-              <button type="button" className="btn-cta is-disabled" disabled>
-                Signed In
-              </button>
+              <button type="button" className="btn-cta is-disabled" disabled>Signed In</button>
             ) : (
-              <Link to="/signin" className="btn-cta">
-                Sign In
-              </Link>
+              <Link to="/signin" className="btn-cta">Sign In</Link>
             )}
           </div>
         </section>
@@ -364,7 +382,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
       </footer>
 
       {/* ======================================================
-          LOGIN-REQUIRED MODAL (for guests)
+          LOGIN-REQUIRED MODAL
           ====================================================== */}
       {showLoginWarn && (
         <div
@@ -379,23 +397,16 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
             <div className="login-modal__icon" aria-hidden="true">
               <i className="bi bi-exclamation-circle" />
             </div>
-
             <div className="rp-modal__head">
               <h3 id="needLogin">Sign in required</h3>
             </div>
-
             <div className="rp-modal__body">
               <p>Sign in first to open the Favorites page or save recipes.</p>
             </div>
-
             <div className="rp-modal__foot">
               <div className="rp-modal__actions">
-                <button className="btn-plain" type="button" onClick={() => setShowLoginWarn(false)}>
-                  Cancel
-                </button>
-                <Link className="btn-accent" to="/signin">
-                  Sign in
-                </Link>
+                <button className="btn-plain" type="button" onClick={() => setShowLoginWarn(false)}>Cancel</button>
+                <Link className="btn-accent" to="/signin">Sign in</Link>
               </div>
             </div>
           </div>
@@ -404,23 +415,17 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
 
       {/* ========= HOME: RECIPE DETAILS MODAL ========= */}
       {detailMeal && (
-        <div className="rp-modal is-open recipe-modal" aria-hidden="false" onClick={(e) => {
-          if (e.target.classList.contains("rp-modal__scrim")) closeMeal();
-        }}>
+        <div
+          className="rp-modal is-open recipe-modal"
+          aria-hidden="false"
+          onClick={(e) => { if (e.target.classList.contains("rp-modal__scrim")) closeMeal(); }}
+        >
           <div className="rp-modal__scrim" />
           <div className="rp-modal__panel rp-modal--recipe recipe-modal--simple" role="dialog" aria-modal="true" aria-labelledby="hmTitle">
-            <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>
-              ×
-            </button>
-
-            <div className="rmodal__banner">
-              <span>Learn About The Recipe</span>
-            </div>
-
+            <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
+            <div className="rmodal__banner"><span>Learn About The Recipe</span></div>
             <div className="rp-modal__body rmodal">
-              <h3 id="hmTitle" className="rmodal__name">
-                {detailMeal.strMeal}
-              </h3>
+              <h3 id="hmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
 
               <div className="rmodal__section">
                 <h4 className="rmodal__label">Ingredients</h4>
@@ -432,9 +437,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
                         srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
                         alt={it.name}
                         loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
                       />
                       <figcaption>
                         <strong className="ing__name">{it.name}</strong>
@@ -448,9 +451,7 @@ export default function Home({ user, savedRecipes, setSavedRecipes }) {
               <div className="rmodal__section">
                 <h4 className="rmodal__label">Instructions</h4>
                 <ul className="rmodal__steps">
-                  {stepsFromText(detailMeal.strInstructions).map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
+                  {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
                 </ul>
 
                 {detailMeal.strYoutube && (

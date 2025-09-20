@@ -426,3 +426,131 @@ body {
 .recipe-card__overlay span {
   text-shadow: 0 2px 6px rgba(0,0,0,.35);
 }
+
+/* ============ Small tablets (≤768px) ============ */
+@media (max-width: 768px) {
+  .hero {
+    min-height: 360px;
+  }
+  .hero h1 {
+    font-size: 32px;
+  }
+  .hero .lead {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 500px;
+  }
+
+  .about {
+    flex-direction: column;
+    padding-left: 0;
+    text-align: center;
+    min-height: auto;
+  }
+  .about__card {
+    margin: 20px auto;
+    max-width: 95%;
+  }
+
+  .cta-fav {
+    flex-direction: column;
+    min-height: auto;
+  }
+  .cta-fav__card {
+    margin: 20px auto;
+    text-align: center;
+    width: 95%;
+  }
+
+  .r-like-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .r-like-btn .r-like {
+    font-size:25px;
+  }
+}
+
+/* ============ Phones (≤560px) ============ */
+@media (max-width: 560px) {
+  .hero {
+    min-height: 280px;
+    padding: 40px 12px;
+  }
+  .hero h1 {
+    font-size: 24px;
+  }
+  .hero .lead {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .about__card h2 {
+    font-size: 22px;
+  }
+  .about__card p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .recipes__title {
+    font-size: 22px;
+  }
+
+  .cta-fav__card h3 {
+    font-size: 22px;
+  }
+  .cta-fav__card p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Heart icon smaller */
+  .r-like-btn {
+    width: 30px;
+    height: 30px;
+  }
+  .r-like-btn .r-like {
+    font-size: 25px;
+  }
+  
+}
+
+/* ============ Extra small phones (≤360px) ============ */
+@media (max-width: 360px) {
+  body { padding-top: 90px; } /* smaller header offset */
+
+  .hero {
+    min-height: 220px;
+  }
+  .hero h1 {
+    font-size: 20px;
+  }
+  .hero .lead {
+    font-size: 13px;
+  }
+
+  .btn-accent,
+  .btn-about,
+  .btn-cta,
+  .btn-seeall {
+    font-size: 12px;
+    padding: 8px 20px;
+  }
+
+  .recipe-card__title {
+    font-size: 15px;
+  }
+  .recipe-card__desc {
+    font-size: 13px;
+  }
+
+  /* Heart icon even smaller */
+  .r-like-btn {
+    width: 26px;
+    height: 26px;
+  }
+  .r-like-btn .r-like {
+    font-size: 25px;
+  }
+}

@@ -146,3 +146,66 @@ body.rp-noscroll {
   .recipe-card__imgwrap {
     position: relative; /* ensure z-index works inside */
   }
+
+  /* ===== Favorites: add space before footer on small screens ===== */
+@media (max-width: 600px) {
+    /* push the content area a bit above the footer */
+    .fav-wrap .page {
+      margin: -5px auto 48px !important;  /* was 0 bottom; now +48px */
+    }
+    /* and add breathing room after the list itself */
+    .favorites {
+      padding-bottom: 24px;
+    }
+  }
+  
+  /* tiniest phones */
+  @media (max-width: 380px) {
+    .fav-wrap .page { margin: -5px auto 64px !important; }
+    .favorites { padding-bottom: 28px; }
+  }
+  
+  /* ===== Favorites: empty-state card — compact on small screens ===== */
+@media (max-width: 600px) {
+    .favorites.is-empty { min-height: 52vh; padding: 16px 0; }
+  
+    .favorites .r-empty {
+      width: min(360px, 90vw);   /* smaller than desktop */
+      padding: 20px 18px;        /* tighter */
+      border-radius: 16px;
+    }
+  
+    .r-empty__icon { font-size: 44px; margin-bottom: 0; }
+    .r-empty__title { font-size: 16px; margin: 6px 0 6px; }
+    .r-empty__desc  { font-size: 14px !important; line-height: 1.55; margin-bottom: 14px; }
+  
+    .favorites .btn-accent {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 42px;
+      padding: 0 16px;
+      font-size: 14px;
+      border-radius: 14px;
+    }
+  }
+  
+  /* ultra-small phones */
+  @media (max-width: 360px) {
+    .favorites .r-empty { width: 92vw; padding: 18px 16px; border-radius: 14px; }
+    .r-empty__icon  { font-size: 40px; }
+    .r-empty__title { font-size: 15px; }
+    .r-empty__desc  { font-size: 13.5px !important; }
+    .favorites .btn-accent { height: 40px; font-size: 13.5px; }
+  }
+/* ===== Favorites (DESKTOP): add margin before footer ===== */
+@media (min-width: 901px) {
+    .fav-wrap .page {
+      /* keep your top margin (-5px) and add bottom space */
+      margin: -5px auto 72px;
+    }
+    .favorites {
+      padding-bottom: 24px; /* a little breathing room after the last card */
+    }
+  }
+    

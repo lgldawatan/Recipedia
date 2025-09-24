@@ -410,7 +410,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,.45);
+  background: rgba(0, 0, 0, .45);
   color: #fff;
   font: 700 18px Poppins, sans-serif;
   border: 0;
@@ -424,7 +424,7 @@ body {
 }
 
 .recipe-card__overlay span {
-  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 }
 
 /* ============ Small tablets (≤768px) ============ */
@@ -432,9 +432,11 @@ body {
   .hero {
     min-height: 360px;
   }
+
   .hero h1 {
     font-size: 32px;
   }
+
   .hero .lead {
     font-size: 15px;
     line-height: 1.6;
@@ -447,6 +449,7 @@ body {
     text-align: center;
     min-height: auto;
   }
+
   .about__card {
     margin: 20px auto;
     max-width: 95%;
@@ -456,6 +459,7 @@ body {
     flex-direction: column;
     min-height: auto;
   }
+
   .cta-fav__card {
     margin: 20px auto;
     text-align: center;
@@ -466,8 +470,9 @@ body {
     width: 38px;
     height: 38px;
   }
+
   .r-like-btn .r-like {
-    font-size:25px;
+    font-size: 25px;
   }
 }
 
@@ -477,9 +482,11 @@ body {
     min-height: 280px;
     padding: 40px 12px;
   }
+
   .hero h1 {
     font-size: 24px;
   }
+
   .hero .lead {
     font-size: 14px;
     line-height: 1.5;
@@ -488,6 +495,7 @@ body {
   .about__card h2 {
     font-size: 22px;
   }
+
   .about__card p {
     font-size: 14px;
     line-height: 1.6;
@@ -500,6 +508,7 @@ body {
   .cta-fav__card h3 {
     font-size: 22px;
   }
+
   .cta-fav__card p {
     font-size: 14px;
     line-height: 1.6;
@@ -510,22 +519,29 @@ body {
     width: 30px;
     height: 30px;
   }
+
   .r-like-btn .r-like {
     font-size: 25px;
   }
-  
+
 }
 
 /* ============ Extra small phones (≤360px) ============ */
 @media (max-width: 360px) {
-  body { padding-top: 90px; } /* smaller header offset */
+  body {
+    padding-top: 90px;
+  }
+
+  /* smaller header offset */
 
   .hero {
     min-height: 220px;
   }
+
   .hero h1 {
     font-size: 20px;
   }
+
   .hero .lead {
     font-size: 13px;
   }
@@ -541,6 +557,7 @@ body {
   .recipe-card__title {
     font-size: 15px;
   }
+
   .recipe-card__desc {
     font-size: 13px;
   }
@@ -550,6 +567,7 @@ body {
     width: 26px;
     height: 26px;
   }
+
   .r-like-btn .r-like {
     font-size: 25px;
   }

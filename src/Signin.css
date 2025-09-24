@@ -146,7 +146,6 @@ body.signin-view .rp-header {
   font-size: 14px;
 }
 
-/* Back link */
 .auth-back {
   margin-top: clamp(16px, 2.6vw, 20px);
 }
@@ -175,20 +174,15 @@ body.signin-view .rp-header {
   }
 }
 
-/* =========================================
-   📱 Sign in page – responsive tweaks only
-   ========================================= */
-
-/* Tablets (≤900px) */
 @media (max-width: 900px) {
   .signin-hero{
-    padding: 12px 16px;           /* breathe a bit */
+    padding: 12px 16px;          
     background-position: center;
     background-size: cover;
   }
   .auth-card{
     width: min(560px, 92vw);
-    padding: 40px;                /* slightly tighter than desktop */
+    padding: 40px;               
     border-radius: 26px;
   }
   .auth-title{ font-size: 28px; }
@@ -199,11 +193,8 @@ body.signin-view .rp-header {
   inline-size: clamp(130px, 28vw, 200px);
 }
 
-/* Phones (≤600px) */
 @media (max-width: 600px) {
-  /* Make the hero fit small screens comfortably */
   .signin-hero{
-    /* Use small-viewport units to avoid the URL bar bug on mobile */
     min-height: 100svh;
     padding: 16px;
     align-content: center;
@@ -222,35 +213,32 @@ body.signin-view .rp-header {
 
 
   .auth-title{
-    font-size: 24px;              /* tighter headline */
+    font-size: 24px;             
     letter-spacing: .3px;
     margin-bottom: 10px;
   }
 
   .auth-copy{
-    font-size: 15px;              /* readable but compact */
+    font-size: 15px;             
     line-height: 1.55;
     margin-bottom: 22px;
     max-width: 56ch;
   }
 
-  /* Google button: compact but tappable */
   .google-cta{
     height: 48px;
     font-size: 16px;
     padding: 0 16px;
     gap: 10px;
-    border-width: 2px;            /* thinner border on small screens */
+    border-width: 2px;            
   }
   .g-icon, .g-logo{ width: 1.2em; height: 1.2em; }
-
-  /* Error + back link spacing */
   .auth-error{ font-size: 13px; padding: 9px 10px; }
   .auth-back   { margin-top: 14px; }
   .auth-back-link{ font-size: 13px; }
 }
 
-/* Extra small phones (≤380px) */
+
 @media (max-width: 380px) {
   .auth-card{
     width: 92vw;
@@ -270,7 +258,6 @@ body.signin-view .rp-header {
   }
 }
 
-/* Ultra-small (≤320px) – final squeeze */
 @media (max-width: 320px){
   .auth-title{ font-size: 20px; }
   .auth-copy { font-size: 13.5px; }

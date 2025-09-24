@@ -8,15 +8,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Signin.css";
-import bg from "./Assets/banner2.png";     // background image
+import bg from "./Assets/banner2.png";
 import brandMark from "./Assets/logo.png";
 import googleLogo from "./Assets/google.png";
 
 export default function Signin() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // where to go after successful sign-in
   const nextFromState = location.state?.next;
   const nextFromQuery = new URLSearchParams(location.search).get("next");
   const next = nextFromState || nextFromQuery || "/";

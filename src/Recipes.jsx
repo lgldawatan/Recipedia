@@ -7,14 +7,7 @@ import "./Recipes.css";
 import "./index.css";
 import Logo1 from "./Assets/logo.png";
 import Logo2 from "./Assets/api.png";
-/**
- * Recipes Page
- * - Fetches recipes from TheMealDB
- * - Search by name/ingredient
- * - Filter by category & cuisine
- * - Pagination & favorites (requires sign-in)
- * - Profile dropdown & access guard modal
- */
+
 export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   // ==============================
   // Constants / Config
@@ -28,13 +21,13 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   // ==============================
   const [open, setOpen] = useState(false);           // profile dropdown open?
   const navigate = useNavigate();
-  const scrollLockY = useRef(0);                     // remembers scroll position during modal lock
+  const scrollLockY = useRef(0);
 
   // ==============================
   // Refs for measuring UI
   // ==============================
-  const barRef = useRef(null);       // bar containing the breadcrumb text
-  const crumbsRef = useRef(null);    // the breadcrumb element (for width calc)
+  const barRef = useRef(null);
+  const crumbsRef = useRef(null);
 
   // ==============================
   // Data / Control state
@@ -49,7 +42,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Filter modal controls and options
-  const [isOpen, setIsOpen] = useState(false);       // filters modal open?
+  const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);  // list of category strings
   const [areas, setAreas] = useState([]);            // list of cuisine/area strings
   const [selCats, setSelCats] = useState(new Set()); // selected categories
@@ -60,31 +53,35 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   const openMeal = (m) => { setDetailMeal(m); document.body.classList.add("rp-noscroll"); };
   const closeMeal = () => { setDetailMeal(null); document.body.classList.remove("rp-noscroll"); };
 
+  function stepsFromText(txt = "") {
+    return txt
+      .split(/\r?\n+/) // split by new lines
+      .map(s =>
+        // strip leading "STEP 3", "3.", "3)", "3 -", "3:" (case-insensitive)
+        s.replace(/^(?:STEP\s*)?\d+(?:[.)\-:])?\s*/i, "").trim()
+      )
+      // drop empty lines and number-only lines like "1", "2", "STEP 4"
+      .filter(s => s && !/^(?:STEP\s*)?\d+$/i.test(s));
+  }
 
-  // split instructions into bullets
-  const stepsFromText = (txt = "") =>
-    txt
-      .split(/\r?\n+/)           // split on new lines
-      .map(s => s.trim())
-      .filter(Boolean);
-  // build objects: { name, measure, imgSmall, img2x }
-    const ingredientItems = (m) => {
-      const out = [];
-      for (let i = 1; i <= 20; i++) {
-        const name = (m[`strIngredient${i}`] || "").trim();
-        const measure = (m[`strMeasure${i}`] || "").trim();
-        if (!name) continue;
 
-        const slug = encodeURIComponent(name);
-        out.push({
-          name,
-          measure,
-          imgSmall: `https://www.themealdb.com/images/ingredients/${slug}-Small.png`,
-          img2x:    `https://www.themealdb.com/images/ingredients/${slug}.png`,
-        });
-      }
-      return out;
-    };
+  const ingredientItems = (m) => {
+    const out = [];
+    for (let i = 1; i <= 20; i++) {
+      const name = (m[`strIngredient${i}`] || "").trim();
+      const measure = (m[`strMeasure${i}`] || "").trim();
+      if (!name) continue;
+
+      const slug = encodeURIComponent(name);
+      out.push({
+        name,
+        measure,
+        imgSmall: `https://www.themealdb.com/images/ingredients/${slug}-Small.png`,
+        img2x: `https://www.themealdb.com/images/ingredients/${slug}.png`,
+      });
+    }
+    return out;
+  };
 
 
 
@@ -123,12 +120,6 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   }
   useEffect(updateCrumbsWidth, [crumbs]);
 
-  // ==============================
-  // Body scroll lock when "login required" modal is shown
-  // - Stores current scroll Y
-  // - Applies fixed positioning via class & style
-  // - Restores on cleanup
-  // ==============================
   useEffect(() => {
     if (showLoginWarn) {
       // lock scroll
@@ -150,7 +141,6 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
 
   // ==============================
   // Data loading
-  // - loadAll(): fetches A-Z meals, de-dupes, sorts
   // - Effect: initial load + fetch lists for categories & areas
   // ==============================
   const loadAll = useCallback(async () => {
@@ -187,20 +177,20 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
   }, [API, LABEL_ALL, j]);
 
   useEffect(() => {
-  (async () => {
-    await loadAll();
+    (async () => {
+      await loadAll();
 
-    try {
-      const cats = await j(`${API}/list.php?c=list`);
-      setCategories((cats.meals || []).map(x => x.strCategory).sort());
-    } catch {}
+      try {
+        const cats = await j(`${API}/list.php?c=list`);
+        setCategories((cats.meals || []).map(x => x.strCategory).sort());
+      } catch { }
 
-    try {
-      const ars = await j(`${API}/list.php?a=list`);
-      setAreas((ars.meals || []).map(x => x.strArea).sort());
-    } catch {}
-  })();
-}, [loadAll, j]); // ⬅ add j here
+      try {
+        const ars = await j(`${API}/list.php?a=list`);
+        setAreas((ars.meals || []).map(x => x.strArea).sort());
+      } catch { }
+    })();
+  }, [loadAll, j]); // ⬅ add j here
 
 
   // ==============================
@@ -274,7 +264,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
     return out;
   };
 
-  // Apply selected filters (category + area) to current "full" base
+  // Apply selected filters
   async function applyFilters(selCats, selAreas) {
     if (selCats.size === 0 && selAreas.size === 0) {
       // nothing selected → show everything in current base
@@ -302,7 +292,6 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
         return;
       }
 
-      // Hydrate minimal items back to full details
       const details = await Promise.all(Array.from(ids).map((id) => j(`${API}/lookup.php?i=${id}`)));
       const out = details
         .map((d) => d?.meals?.[0])
@@ -355,106 +344,106 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
     <>
       {/* ================= Header (brand + primary nav + profile) ================= */}
       <header className="rp-header">
-  <div className="rp-shell">
-    {/* Brand / Logo */}
-    <Link
-      className="rp-brand"
-      to="/"
-      onClick={() => { setOpen(false); }}
-    >
-      <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
-      <span className="rp-wordmark">
-        recipe <br /> palette.
-      </span>
-    </Link>
+        <div className="rp-shell">
+          {/* Brand / Logo */}
+          <Link
+            className="rp-brand"
+            to="/"
+            onClick={() => { setOpen(false); }}
+          >
+            <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+            <span className="rp-wordmark">
+              recipe <br /> palette.
+            </span>
+          </Link>
 
-    <div className="rp-right">
-      {/* Primary nav */}
-      <nav className="rp-nav">
-        <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
-        <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
-        <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
-        <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
-      </nav>
+          <div className="rp-right">
+            {/* Primary nav */}
+            <nav className="rp-nav">
+              <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
+              <NavLink to="/about" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>About</NavLink>
+              <NavLink to="/recipes" className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Recipes</NavLink>
+              <NavLink to="/favorites" onClick={handleFavoritesNav} className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Favorites</NavLink>
+            </nav>
 
-      {/* Profile dropdown */}
-      <div className="rp-profile-wrap">
-        <button
-          type="button"
-          className="rp-profile"
-          onClick={() => {
-            if (!isAuthed) { setShowLoginWarn(true); return; }
-            setOpen((o) => !o);
-          }}
-          aria-label={displayName}
-          title={displayName}
-        >
-          {isAuthed && avatar ? (
-            <img className="rp-avatar" src={avatar} alt={displayName} />
-          ) : (
-            <i className="bi bi-person-circle" />
-          )}
-        </button>
-        {isAuthed && open && (
-          <div className="rp-dropdown">
-            <button
-              className="rp-dropdown-item"
-              onClick={async () => {
-                await signOut(auth);
-                navigate("/signin", { replace: true });
-              }}
-            >
-              <i className="bi bi-box-arrow-right" /> Logout
-            </button>
+            {/* Profile dropdown */}
+            <div className="rp-profile-wrap">
+              <button
+                type="button"
+                className="rp-profile"
+                onClick={() => {
+                  if (!isAuthed) { setShowLoginWarn(true); return; }
+                  setOpen((o) => !o);
+                }}
+                aria-label={displayName}
+                title={displayName}
+              >
+                {isAuthed && avatar ? (
+                  <img className="rp-avatar" src={avatar} alt={displayName} />
+                ) : (
+                  <i className="bi bi-person-circle" />
+                )}
+              </button>
+              {isAuthed && open && (
+                <div className="rp-dropdown">
+                  <button
+                    className="rp-dropdown-item"
+                    onClick={async () => {
+                      await signOut(auth);
+                      navigate("/signin", { replace: true });
+                    }}
+                  >
+                    <i className="bi bi-box-arrow-right" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </div>
 
-    {/* Burger button (shown ≤900px via CSS) */}
-    <button
-      type="button"
-      className="rp-menu-btn"
-      aria-label="Open menu"
-      aria-controls="mobileMenu"
-      aria-expanded={menuOpen ? "true" : "false"}
-      onClick={() => setMenuOpen(v => !v)}
-    >
-      <i className="bi bi-list"></i>
-    </button>
-  </div>
+          {/* Burger button (shown ≤900px via CSS) */}
+          <button
+            type="button"
+            className="rp-menu-btn"
+            aria-label="Open menu"
+            aria-controls="mobileMenu"
+            aria-expanded={menuOpen ? "true" : "false"}
+            onClick={() => setMenuOpen(v => !v)}
+          >
+            <i className="bi bi-list"></i>
+          </button>
+        </div>
 
-  {/* Mobile panel (same as Home) */}
-  <div className={`mobile-panel ${menuOpen ? "is-open" : ""}`} id="mobileMenu" role="dialog" aria-modal="true">
-    <div className="mobile-panel__head">
-      <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>
-        <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
-        <span className="rp-wordmark">recipe<br/>palette.</span>
-      </Link>
-      <button type="button" className="mobile-panel__close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
-    </div>
+        {/* Mobile panel (same as Home) */}
+        <div className={`mobile-panel ${menuOpen ? "is-open" : ""}`} id="mobileMenu" role="dialog" aria-modal="true">
+          <div className="mobile-panel__head">
+            <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>
+              <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
+              <span className="rp-wordmark">recipe<br />palette.</span>
+            </Link>
+            <button type="button" className="mobile-panel__close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
+          </div>
 
-    <nav className="mobile-nav" aria-label="Mobile">
-      <NavLink to="/" end onClick={() => setMenuOpen(false)}>Home</NavLink>
-      <NavLink to="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
-      <NavLink to="/recipes" onClick={() => setMenuOpen(false)}>Recipes</NavLink>
-      <NavLink to="/favorites" onClick={(e) => { handleFavoritesNav(e); setMenuOpen(false); }}>Favorites</NavLink>
+          <nav className="mobile-nav" aria-label="Mobile">
+            <NavLink to="/" end onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <NavLink to="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
+            <NavLink to="/recipes" onClick={() => setMenuOpen(false)}>Recipes</NavLink>
+            <NavLink to="/favorites" onClick={(e) => { handleFavoritesNav(e); setMenuOpen(false); }}>Favorites</NavLink>
 
-      {!isAuthed ? (
-        <NavLink to="/signin" className="mobile-nav__cta" onClick={() => setMenuOpen(false)}>Sign In</NavLink>
-      ) : (
-        <button className="mobile-nav__cta" onClick={async () => { setMenuOpen(false); await signOut(auth); navigate("/signin", { replace: true }); }}>Logout</button>
-      )}
-    </nav>
-  </div>
+            {!isAuthed ? (
+              <NavLink to="/signin" className="mobile-nav__cta" onClick={() => setMenuOpen(false)}>Sign In</NavLink>
+            ) : (
+              <button className="mobile-nav__cta" onClick={async () => { setMenuOpen(false); await signOut(auth); navigate("/signin", { replace: true }); }}>Logout</button>
+            )}
+          </nav>
+        </div>
 
-  {/* Scrim */}
-  <button
-    className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
-    aria-hidden={!menuOpen}
-    onClick={() => setMenuOpen(false)}
-  />
-</header>
+        {/* Scrim */}
+        <button
+          className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
+          aria-hidden={!menuOpen}
+          onClick={() => setMenuOpen(false)}
+        />
+      </header>
 
 
       {/* ================= Main content ================= */}
@@ -546,15 +535,15 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
                   <img className="r-card__img" src={m.strMealThumb} alt={m.strMeal} />
 
                   {/* Hover overlay */}
-                    <button
-                      type="button"
-                      className="r-card__overlay"
-                      onClick={() => openMeal(m)}
-                      aria-label={`View details for ${m.strMeal}`}
-                    >
-                      <span>View Details</span>
-                    </button>
-                  
+                  <button
+                    type="button"
+                    className="r-card__overlay"
+                    onClick={() => openMeal(m)}
+                    aria-label={`View details for ${m.strMeal}`}
+                  >
+                    <span>View Details</span>
+                  </button>
+
                   {/* Favorite toggle (heart) */}
                   <button
                     type="button"
@@ -745,76 +734,76 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
 
       {/* ========= RECIPE DETAILS MODAL ========= */}
       {detailMeal && (
-  <div
-    className="rp-modal is-open recipe-modal"
-    aria-hidden="false"
-    onClick={(e) => {
-      if (e.target.classList.contains("rp-modal__scrim")) closeMeal();
-    }}
-  >
-    <div className="rp-modal__scrim" />
-    <div className="rp-modal__panel rp-modal--recipe recipe-modal--simple" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
-      {/* close button */}
-      <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
+        <div
+          className="rp-modal is-open recipe-modal"
+          aria-hidden="false"
+          onClick={(e) => {
+            if (e.target.classList.contains("rp-modal__scrim")) closeMeal();
+          }}
+        >
+          <div className="rp-modal__scrim" />
+          <div className="rp-modal__panel rp-modal--recipe recipe-modal--simple" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+            {/* close button */}
+            <button className="rp-modal__close" aria-label="Close" onClick={closeMeal}>×</button>
 
-      {/* orange banner */}
-      <div className="rmodal__banner">
-        <span>Learn About The Recipe</span>
-      </div>
+            {/* orange banner */}
+            <div className="rmodal__banner">
+              <span>Learn About The Recipe</span>
+            </div>
 
-      <div className="rp-modal__body rmodal">
-        {/* dish name */}
-        <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
+            <div className="rp-modal__body rmodal">
+              {/* dish name */}
+              <h3 id="rmTitle" className="rmodal__name">{detailMeal.strMeal}</h3>
 
-        {/* INGREDIENTS */}
-        <div className="rmodal__section">
-          <h4 className="rmodal__label">Ingredients</h4>
+              {/* INGREDIENTS */}
+              <div className="rmodal__section">
+                <h4 className="rmodal__label">Ingredients</h4>
 
-          {/* simple cards (no image) */}
-          <div className="rmodal__chips rmodal__chips--grid">
-          {ingredientItems(detailMeal).map((it, i) => (
-            <figure key={i} className="ing ing--card">
-              <img
-                src={it.imgSmall}
-                srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
-                alt={it.name}
-                loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none"; // hide if missing
-                }}
-              />
-              <figcaption>
-                <strong className="ing__name">{it.name}</strong>
-                {it.measure && <span className="ing__measure">{it.measure}</span>}
-              </figcaption>
-            </figure>
-          ))}
+                {/* simple cards (no image) */}
+                <div className="rmodal__chips rmodal__chips--grid">
+                  {ingredientItems(detailMeal).map((it, i) => (
+                    <figure key={i} className="ing ing--card">
+                      <img
+                        src={it.imgSmall}
+                        srcSet={`${it.imgSmall} 1x, ${it.img2x} 2x`}
+                        alt={it.name}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none"; // hide if missing
+                        }}
+                      />
+                      <figcaption>
+                        <strong className="ing__name">{it.name}</strong>
+                        {it.measure && <span className="ing__measure">{it.measure}</span>}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+
+              </div>
+
+              {/* INSTRUCTIONS */}
+              <div className="rmodal__section">
+                <h4 className="rmodal__label">Instructions</h4>
+                <ul className="rmodal__steps">
+                  {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+
+                {detailMeal.strYoutube && (
+                  <a
+                    className="rmodal__yt rmodal__yt--solo"
+                    href={detailMeal.strYoutube}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Youtube
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-
-        </div>
-
-        {/* INSTRUCTIONS */}
-        <div className="rmodal__section">
-          <h4 className="rmodal__label">Instructions</h4>
-          <ul className="rmodal__steps">
-            {stepsFromText(detailMeal.strInstructions).map((s, i) => <li key={i}>{s}</li>)}
-          </ul>
-
-          {detailMeal.strYoutube && (
-            <a
-              className="rmodal__yt rmodal__yt--solo"
-              href={detailMeal.strYoutube}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Youtube
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </>
   );
 }

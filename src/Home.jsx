@@ -77,7 +77,14 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
   }
 
   function stepsFromText(txt = "") {
-    return txt.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean);
+    return txt
+      .split(/\r?\n+/)// split by new lines
+      .map(s =>
+        // strip leading "STEP 3", "3.", "3)", "3 -", "3:" (case-insensitive)
+        s.replace(/^(?:STEP\s*)?\d+(?:[.)\-:])?\s*/i, "").trim()
+      )
+      // drop empty lines and number-only lines like "1", "2", "STEP 4"
+      .filter(s => s && !/^(?:STEP\s*)?\d+$/i.test(s));
   }
 
   /* ================================
@@ -216,17 +223,17 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
             </div>
           </div>
 
-          {/* Mobile hamburger (shown by CSS at <= 900px) */}
+          {/* Mobile hamburger*/}
           <button
-  type="button"
-  className="rp-menu-btn"
-  aria-label="Open menu"
-  aria-controls="mobileMenu"
-  aria-expanded={menuOpen ? "true" : "false"}
-  onClick={() => setMenuOpen(v => !v)}
->
-  <i className="bi bi-list"></i>
-</button>
+            type="button"
+            className="rp-menu-btn"
+            aria-label="Open menu"
+            aria-controls="mobileMenu"
+            aria-expanded={menuOpen ? "true" : "false"}
+            onClick={() => setMenuOpen(v => !v)}
+          >
+            <i className="bi bi-list"></i>
+          </button>
         </div>
 
         {/* Mobile slide-in panel */}
@@ -234,7 +241,7 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
           <div className="mobile-panel__head">
             <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>
               <img className="rp-logo-stack" src={Logo1} alt="Recipe Palette Logo" />
-              <span className="rp-wordmark">recipe<br/>palette.</span>
+              <span className="rp-wordmark">recipe<br />palette.</span>
             </Link>
             <button type="button" className="mobile-panel__close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
           </div>
@@ -253,7 +260,6 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
           </nav>
         </div>
 
-        {/* Scrim behind the mobile panel */}
         <button
           className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
           aria-hidden={!menuOpen}
@@ -309,7 +315,7 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
                 <article className="recipe-card" key={m.idMeal}>
                   <div className="recipe-card__imgwrap">
                     <img className="recipe-card__img" src={m.strMealThumb} alt={m.strMeal} />
-                    {/* View details overlay (clickable without blocking the heart) */}
+                    {/* View details overlay*/}
                     <button
                       type="button"
                       className="recipe-card__overlay"
@@ -319,7 +325,7 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
                       <span>View Details</span>
                     </button>
 
-                    {/* Favorite heart (stays clickable even on hover) */}
+                    {/* Favorite heart*/}
                     <button
                       type="button"
                       className={`r-like-btn ${isFav(m.idMeal) ? "is-active" : ""}`}

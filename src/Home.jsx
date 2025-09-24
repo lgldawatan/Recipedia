@@ -140,8 +140,8 @@ export default function Home({ user, savedRecipes = [], setSavedRecipes }) {
   /* ================================
      AUTH HELPERS
      ================================ */
-  const isAuthed = Boolean(user?.uid);
-  const avatar = user?.photoURL || null;
+  const isAuthed = Boolean(user?.uid);// checks if signed in
+  const avatar = user?.photoURL || null; // user’s Google/Email avatar
   const displayName = user?.displayName || "Profile";
 
   const toggleFavorite = (meal) => {

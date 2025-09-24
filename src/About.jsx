@@ -1,14 +1,11 @@
-// About.jsx
+
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
-/* Global/navbar styles + page styles */
 import "./index.css";
 import "./About.css";
-
 /* Assets */
 import Logo1 from "./Assets/logo.png";
 import Logo2 from "./Assets/api.png";

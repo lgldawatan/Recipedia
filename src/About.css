@@ -1,4 +1,4 @@
-/* ===== Tokens ===== */
+
 :root {
   --container: 1189px;
 }
@@ -10,7 +10,7 @@ html, body { margin: 0; padding: 0; }
 body {
   font-family: Poppins, sans-serif;
   color: #1f1f1f;
-  padding-top: 110px;   /* offset for fixed navbar */
+  padding-top: 110px;   
 }
 
 .page {
@@ -132,30 +132,26 @@ body {
 @media (max-width: 760px){
   .info-grid{ grid-template-columns:1fr; }
 }
-/* ===== Align About page indention with global ===== */
-/* ===== Ensure About page sections align with global gutters ===== */
 .about-page,
 .about-sloganRow,
 .about-banner,
 .about-blocks,
 .about-cta {
-  width: 100% !important;       /* same as global page gutters */
+  width: 100% !important;     
   max-width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
-
-/* ===== Remove white background in Join Us banner ===== */
 .about-cta,
 .about-banner {
-  background: transparent !important; /* remove white */
-  box-shadow: none !important;       /* remove drop shadow if any */
+  background: transparent !important; 
+  box-shadow: none !important;       
 }
-/* --- Every recipe card spacing --- */
+
 .about-sloganRow{
-  margin-top: 8px;          /* was larger; bring it nearer the header */
-  overflow: hidden;         /* clip to rounded corners so nothing spills */
+  margin-top: 8px;          
+  overflow: hidden;     
 }
 
 /* --- Logos inside the card --- */
@@ -163,75 +159,68 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;          /* wrap on small screens */
+  flex-wrap: wrap;         
   gap: 14px;
-  padding: 8px 14px 16px;   /* add inner padding so icons don't touch edges */
+  padding: 8px 14px 16px; 
 }
 
 .about-icons img{
-  height: clamp(64px, 10vw, 110px); /* responsive size */
+  height: clamp(64px, 10vw, 110px); 
   width: auto;
   display: block;
   max-width: 100%;
 }
 
-/* Mobile: make the layout stack cleanly and tighten spacing */
+/* Mobile*/
 @media (max-width: 860px){
   .about-sloganRow{ margin-top: 6px; }
   .about-icons{ gap: 10px; padding: 6px 12px 12px; }
   .about-icons img{ height: clamp(56px, 12vw, 92px); }
 }
 
-/* ===== Prevent cropped text on small screens ===== */
-/* ===== Mobile: keep card centered INSIDE the image and show all text ===== */
 @media (max-width: 768px) {
-  /* Use grid overlay so container height follows the card */
   .about-banner,
   .about-cta {
     display: grid;
-    place-items: center;     /* centers card */
+    place-items: center;    
     border-radius: 14px;
     overflow: hidden;
   }
 
-  /* The image stretches to the container height (which now follows the card) */
   .about-banner__img,
   .about-cta__img {
     grid-area: 1 / 1;
     width: 100%;
     height: 100%;
-    object-fit: cover;       /* crop nicely instead of squish */
+    object-fit: cover;       
     align-self: stretch;
     justify-self: stretch;
     display: block;
   }
 
-  /* The white card sits above the image but is IN-FLOW (no absolute) */
   .about-card,
   .about-ctaCard {
     grid-area: 1 / 1;
-    position: static;        /* important: not absolute */
+    position: static;      
     transform: none;
     width: min(94%, 560px);
-    margin: 16px;            /* breathing room from edges */
+    margin: 16px;          
     box-shadow: 0 10px 28px rgba(0,0,0,.18);
     text-align: center;
   }
 
-  /* Tweak typography a bit for phones */
   .about-card h2,
   .about-ctaCard h3 { font-size: clamp(18px, 5vw, 22px); }
   .about-card p,
   .about-ctaCard p { font-size: 14px; line-height: 1.55; }
 }
 .about-sloganRow {
-  margin-top: 24px;  /* adjust value as needed (20–40px looks good) */
+  margin-top: 24px; 
 }
 
 
 /* --- tablets & small laptops --- */
 @media (max-width: 1024px) {
-  /* Slogan row stacks and centers */
   .about-sloganRow {
     flex-direction: column;
     text-align: center;
@@ -249,22 +238,21 @@ body {
 
 /* --- large phones / small tablets --- */
 @media (max-width: 860px) {
-  /* Info cards go single column; remove forced spans */
   .info-grid { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 
-  /* Right-aligned teal block becomes left-aligned for readability */
+
   .info--teal,
   .info--teal h3 { text-align: left; }
 
-  /* Center cards on top of images and keep breathing room */
+ 
   .about-card,
   .about-ctaCard {
     width: 92%;
     padding: 16px;
   }
 
-  /* Ensure banner and CTA images keep a pleasant height on small screens */
+
   .about-banner__img,
   .about-cta__img {
     width: 100%;
@@ -275,10 +263,8 @@ body {
 
 /* --- phones --- */
 @media (max-width: 600px) {
-  /* Slightly reduce top offset if your navbar is shorter on mobile */
-  body { padding-top: 85px; }
 
-  /* Tighter typography for cards */
+  body { padding-top: 85px; }
   .about-card h2,
   .about-ctaCard h3 {
     font-size: clamp(18px, 5vw, 22px);
@@ -289,21 +275,21 @@ body {
     line-height: 1.55;
   }
 
-  /* Keep hero/CTA imagery nicely cropped without stretching */
+  
   .about-banner,
   .about-cta {
     border-radius: 14px;
     overflow: hidden;
   }
-  /* When sources are very wide, maintain a comfy window */
+
   .about-banner__img,
   .about-cta__img {
-    aspect-ratio: 16 / 9;   /* creates consistent height window */
-    object-fit: cover;      /* crop instead of squish */
+    aspect-ratio: 16 / 9;   
+    object-fit: cover;     
     object-position: center;
   }
 
-  /* Icon row spacing */
+ 
   .about-icons {
     gap: 10px;
     padding: 6px 10px 12px;
@@ -322,6 +308,6 @@ body {
 
 @media (max-width: 480px) {
   .about-sloganRow {
-    margin-top: 20px;  /* more breathing room on very small phones */
+    margin-top: 20px; 
   }
 }

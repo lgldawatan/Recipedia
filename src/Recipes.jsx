@@ -534,7 +534,7 @@ export default function Recipes({ user, savedRecipes, setSavedRecipes }) {
             {status === "success" && slice.length === 0 && (
               <div className="r-empty">
                 <i className="bi bi-emoji-frown r-empty__icon" aria-hidden="true"></i>
-                <h3 className="r-empty__title">Nothing matches your filters</h3>
+                <h3 className="r-empty__title">No recipes found</h3>
                 <p className="r-empty__desc">Try exploring other categories or cuisine.</p>
               </div>
             )}

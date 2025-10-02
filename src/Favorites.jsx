@@ -147,7 +147,7 @@ export default function Favorites({ user, savedRecipes = [], setSavedRecipes }) 
           </button>
         </div>
 
-        {/* Mobile panel (same items as desktop nav) */}
+        {/* Mobile panel*/}
         <div className={`mobile-panel ${menuOpen ? "is-open" : ""}`} id="mobileMenu" role="dialog" aria-modal="true">
           <div className="mobile-panel__head">
             <Link className="rp-brand" to="/" onClick={() => setMenuOpen(false)}>

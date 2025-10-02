@@ -403,7 +403,7 @@ body {
   }
 }
 
-/* ===== Hover overlay (same as Recipes page) ===== */
+
 .recipe-card__overlay {
   position: absolute;
   inset: 0;
@@ -427,7 +427,7 @@ body {
   text-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 }
 
-/* ============ Small tablets (≤768px) ============ */
+
 @media (max-width: 768px) {
   .hero {
     min-height: 360px;
@@ -476,7 +476,7 @@ body {
   }
 }
 
-/* ============ Phones (≤560px) ============ */
+
 @media (max-width: 560px) {
   .hero {
     min-height: 280px;
@@ -514,7 +514,7 @@ body {
     line-height: 1.6;
   }
 
-  /* Heart icon smaller */
+  /* Heart icon*/
   .r-like-btn {
     width: 30px;
     height: 30px;
@@ -526,13 +526,11 @@ body {
 
 }
 
-/* ============ Extra small phones (≤360px) ============ */
+
 @media (max-width: 360px) {
   body {
     padding-top: 90px;
   }
-
-  /* smaller header offset */
 
   .hero {
     min-height: 220px;
@@ -561,8 +559,6 @@ body {
   .recipe-card__desc {
     font-size: 13px;
   }
-
-  /* Heart icon even smaller */
   .r-like-btn {
     width: 26px;
     height: 26px;

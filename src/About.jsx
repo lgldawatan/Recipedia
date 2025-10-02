@@ -15,7 +15,6 @@ import aboutBanner2 from "./Assets/about-banner2.png";
 export default function About({ user }) {
   const navigate = useNavigate();
 
-  /* === UI state (match Home.jsx) === */
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLoginWarn, setShowLoginWarn] = useState(false);
@@ -38,7 +37,7 @@ export default function About({ user }) {
     }
   };
 
-  /* === Body scroll lock while modal OR menu is open (same as Home) === */
+  /* === Body scroll lock while modal OR menu is open === */
   useEffect(() => {
     if (showLoginWarn || menuOpen) {
       scrollLockY.current = window.scrollY || 0;
@@ -57,7 +56,7 @@ export default function About({ user }) {
 
   return (
     <>
-      {/* ================= HEADER (identical to Home) ================= */}
+      {/* ================= HEADER================= */}
       <header className="rp-header">
         <div className="rp-shell">
           {/* Brand */}
@@ -76,7 +75,7 @@ export default function About({ user }) {
             </span>
           </Link>
 
-          {/* Desktop / tablet right side */}
+         
           <div className="rp-right">
             <nav className="rp-nav" aria-label="Primary">
               <NavLink to="/" end className={({ isActive }) => `rp-link ${isActive ? "rp-link--active" : ""}`}>Home</NavLink>
@@ -127,7 +126,7 @@ export default function About({ user }) {
           </button>
         </div>
 
-        {/* Mobile slide-down white panel (same as Home) */}
+        {/* Mobile slide-down white panel*/}
         <div
           className={`mobile-panel ${menuOpen ? "is-open" : ""}`}
           id="mobileMenu"
@@ -168,7 +167,7 @@ export default function About({ user }) {
           </nav>
         </div>
 
-        {/* (Optional) Scrim is disabled by CSS, but we keep the node for symmetry */}
+        {/*Scrim is disabled by CSS*/}
         <button
           className={`nav-overlay ${menuOpen ? "is-open" : ""}`}
           aria-hidden={!menuOpen}
@@ -276,7 +275,7 @@ export default function About({ user }) {
         </footer>
       </div>
 
-      {/* ============== Login required modal (same pattern) ============== */}
+      {/* ============== Login required modal============== */}
       {showLoginWarn && (
         <div
           className="rp-modal is-open login-modal"

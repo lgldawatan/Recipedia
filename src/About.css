@@ -3,7 +3,6 @@
   --container: 1189px;
 }
 
-/* ===== Base ===== */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
@@ -299,7 +298,6 @@ body {
   }
 }
 
-/* --- extra small phones --- */
 @media (max-width: 360px) {
   .about-slogan { font-size: 20px; }
   .about-card p,
